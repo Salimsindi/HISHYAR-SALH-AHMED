@@ -326,6 +326,7 @@
         /* ==================== LOGIN PAGE ==================== */
         #login-section {
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -336,69 +337,56 @@
             right: 0;
             bottom: 0;
             z-index: 2000;
-            padding: 20px;
+            padding: clamp(16px, 4vw, 40px);
+            overflow-y: auto;
+        }
+
+        /* Decorative animated glow blobs behind the card */
+        #login-section::before,
+        #login-section::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.35;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #login-section::before {
+            width: 45vw;
+            max-width: 480px;
+            aspect-ratio: 1;
+            background: radial-gradient(circle, var(--accent-blue), transparent 70%);
+            top: -10%;
+            left: -8%;
+            animation: float 9s ease-in-out infinite;
+        }
+
+        #login-section::after {
+            width: 40vw;
+            max-width: 420px;
+            aspect-ratio: 1;
+            background: radial-gradient(circle, #00d4ff, transparent 70%);
+            bottom: -12%;
+            right: -8%;
+            animation: float 11s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, -25px); }
         }
 
         .login-card {
-            max-width: 450px;
+            max-width: 430px;
             width: 100%;
-            padding: 50px 40px;
+            padding: clamp(28px, 5vw, 48px) clamp(22px, 5vw, 42px);
             animation: slideUp 0.8s ease;
             position: relative;
             overflow: hidden;
             border-radius: 24px;
-        }
-
-        @media (max-width: 768px) {
-            .login-card {
-                padding: 40px 30px;
-                max-width: 100%;
-            }
-
-            .login-logo {
-                width: 90px;
-                height: 90px;
-                margin: 0 auto 20px;
-            }
-
-            .login-logo img {
-                width: 70px;
-                height: 70px;
-            }
-
-            .login-title {
-                font-size: 1.5rem;
-            }
-
-            #login-form .form-control {
-                padding: 12px 15px;
-                font-size: 0.95rem;
-            }
-
-            #login-section .btn-primary {
-                padding: 13px 30px;
-                font-size: 1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .login-card {
-                padding: 35px 25px;
-            }
-
-            .login-logo {
-                width: 80px;
-                height: 80px;
-            }
-
-            .login-logo img {
-                width: 60px;
-                height: 60px;
-            }
-
-            .login-title {
-                font-size: 1.3rem;
-            }
+            z-index: 1;
         }
 
         .login-card::before {
@@ -430,15 +418,14 @@
         }
 
         .login-logo {
-            width: 110px;
-            height: 110px;
+            width: clamp(88px, 22vw, 110px);
+            height: clamp(88px, 22vw, 110px);
             background: linear-gradient(135deg, var(--accent-blue), #00d4ff);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 25px;
-            font-size: 3rem;
+            margin: 0 auto clamp(18px, 4vw, 25px);
             color: var(--primary-dark);
             padding: 15px;
             box-shadow: 0 0 30px rgba(100, 255, 218, 0.4);
@@ -446,8 +433,8 @@
         }
 
         .login-logo img {
-            width: 90px;
-            height: 90px;
+            width: 100%;
+            height: 100%;
             object-fit: contain;
             border-radius: 50%;
             transition: transform 0.3s ease;
@@ -471,12 +458,22 @@
 
         .login-title {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 6px;
             color: var(--accent-blue);
             font-weight: 700;
-            font-size: 1.8rem;
+            font-size: clamp(1.35rem, 5vw, 1.8rem);
+            line-height: 1.2;
             text-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
             animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            margin-bottom: clamp(22px, 5vw, 32px);
+            font-size: clamp(0.8rem, 3vw, 0.9rem);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.75;
         }
 
         @keyframes glow {
@@ -484,35 +481,124 @@
             to { text-shadow: 0 0 30px rgba(100, 255, 218, 0.6); }
         }
 
-        #login-form .form-control {
-            background: var(--secondary-blue);
-            border: 2px solid var(--glass-border);
-            color: var(--text-light);
-            padding: 14px 18px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        #login-form .form-control:focus {
-            background: var(--primary-blue);
-            border-color: var(--accent-blue);
-            color: var(--text-light);
-            box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
-            transform: translateY(-2px);
-            outline: none;
-        }
-
         #login-form .form-label {
             font-weight: 600;
             margin-bottom: 8px;
             color: var(--accent-blue);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+        }
+
+        /* Unified pill-style input field wrapping the icon + input + toggle */
+        #login-form .login-field {
+            display: flex;
+            align-items: center;
+            background: var(--secondary-blue);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        #login-form .login-field:focus-within {
+            background: var(--primary-blue);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.25);
+            transform: translateY(-2px);
+        }
+
+        #login-form .login-field .field-icon {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 46px;
+            align-self: stretch;
+            color: var(--accent-blue);
+            font-size: 1rem;
+        }
+
+        #login-form .login-field .form-control {
+            flex: 1 1 auto;
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            padding: 14px 8px 14px 0;
+            font-size: 1rem;
+            box-shadow: none;
+            outline: none;
+        }
+
+        #login-form .login-field .form-control:focus {
+            background: transparent;
+            color: var(--text-light);
+            box-shadow: none;
+        }
+
+        #login-form .toggle-password {
+            flex: 0 0 auto;
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            opacity: 0.6;
+            width: 46px;
+            align-self: stretch;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        #login-form .toggle-password:hover {
+            opacity: 1;
+            color: var(--accent-blue);
         }
 
         .form-control::placeholder {
             color: rgba(204, 214, 246, 0.5);
+        }
+
+        /* Custom remember-me + forgot-password row */
+        .login-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .login-options .form-check {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .login-options .form-check-input {
+            width: 1.1em;
+            height: 1.1em;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .login-options .form-check-input:checked {
+            background-color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .login-options .form-check-label {
+            font-size: 0.88rem;
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            font-size: 0.88rem;
+            color: var(--accent-blue);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+            opacity: 0.85;
         }
 
         #login-section .btn-primary {
@@ -524,7 +610,7 @@
             font-weight: 700;
             transition: var(--transition);
             width: 100%;
-            font-size: 1.1rem;
+            font-size: clamp(1rem, 4vw, 1.1rem);
             letter-spacing: 0.5px;
             position: relative;
             overflow: hidden;
@@ -552,6 +638,13 @@
 
         #login-section .btn-primary:active {
             transform: translateY(-1px) scale(0.98);
+        }
+
+        @media (max-width: 400px) {
+            #login-section::before,
+            #login-section::after {
+                opacity: 0.22;
+            }
         }
 
         .btn-secondary {
@@ -963,10 +1056,6 @@
                 font-size: 1.5rem;
             }
 
-            .login-card {
-                padding: 30px 20px;
-            }
-
             .receipt-preview {
                 padding: 20px;
             }
@@ -1128,36 +1217,35 @@
                 <img src="apple-touch-icon.png" alt="HISHYAR SALIH AHMED CO.">
             </div>
             <h2 class="login-title" data-i18n="login.title">HISHYAR SALIH AHMED CO.</h2>
-            <p class="text-center mb-4" style="opacity: 0.8;" data-i18n="login.subtitle ">FOR GENERAL TRADING CARS</p>
-            <style>
-               
-            </style>
-            <form id="login-form">
+            <p class="login-subtitle" data-i18n="login.subtitle">FOR GENERAL TRADING CARS</p>
+            <form id="login-form" novalidate>
                 <div class="mb-3">
-                    <label class="form-label" data-i18n="login.username">Username</label>
-                    <div class="input-group">
-                        <span class="input-group-text" style="background: var(--secondary-blue); border: 1px solid var(--glass-border); color: var(--text-light);">
-                            <i class="fas fa-user"></i>
-                        </span>
-                        <input type="text" class="form-control" id="login-username" data-i18n="login.username" placeholder="Enter username" required>
+                    <label class="form-label" for="login-username" data-i18n="login.username">Username</label>
+                    <div class="login-field">
+                        <span class="field-icon"><i class="fas fa-user"></i></span>
+                        <input type="text" class="form-control" id="login-username" autocomplete="username" placeholder="Enter username" required>
                     </div>
                 </div>
-                
+
                 <div class="mb-3">
-                    <label class="form-label" data-i18n="login.password">Password</label>
-                    <div class="input-group">
-                        <span class="input-group-text" style="background: var(--secondary-blue); border: 1px solid var(--glass-border); color: var(--text-light);">
-                            <i class="fas fa-lock"></i>
-                        </span>
-                        <input type="password" class="form-control" id="login-password" data-i18n="login.password" placeholder="Enter password" required>
+                    <label class="form-label" for="login-password" data-i18n="login.password">Password</label>
+                    <div class="login-field">
+                        <span class="field-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" class="form-control" id="login-password" autocomplete="current-password" placeholder="Enter password" required>
+                        <button type="button" class="toggle-password" id="toggle-password" aria-label="Show password" title="Show/Hide password">
+                            <i class="fas fa-eye"></i>
+                        </button>
                     </div>
                 </div>
-                
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="remember-me" style="background: var(--secondary-blue); border-color: var(--glass-border);">
-                    <label class="form-check-label" for="remember-me" data-i18n="login.rememberMe">Remember Me</label>
+
+                <div class="login-options">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="remember-me">
+                        <label class="form-check-label" for="remember-me" data-i18n="login.rememberMe">Remember Me</label>
+                    </div>
+                    <a href="#" class="forgot-link" data-i18n="login.forgotPassword">Forgot Password?</a>
                 </div>
-                
+
                 <button type="submit" class="btn-primary">
                     <i class="fas fa-sign-in-alt me-2"></i><span data-i18n="login.loginBtn">Login</span>
                 </button>
@@ -1945,7 +2033,7 @@
                 
                 // Login
                 'login.title': 'HISHYAR SALIH AHMED CO.',
-                'login.subtitle': 'Receipt Management System',
+                'login.subtitle': 'For General Trading Cars',
                 'login.username': 'Username',
                 'login.password': 'Password',
                 'login.rememberMe': 'Remember Me',
@@ -2072,7 +2160,7 @@
                 
                 // Login
                 'login.title': 'شركة حشيار صالح أحمد',
-                'login.subtitle': 'نظام إدارة الإيصالات',
+                'login.subtitle': 'للتجارة العامة للسيارات',
                 'login.username': 'اسم المستخدم',
                 'login.password': 'كلمة المرور',
                 'login.rememberMe': 'تذكرني',
@@ -3554,6 +3642,20 @@
                 const password = document.getElementById('login-password').value;
                 login(username, password);
             });
+
+            // Password visibility toggle
+            const togglePassword = document.getElementById('toggle-password');
+            if (togglePassword) {
+                togglePassword.addEventListener('click', function() {
+                    const passwordInput = document.getElementById('login-password');
+                    const icon = this.querySelector('i');
+                    const isHidden = passwordInput.type === 'password';
+                    passwordInput.type = isHidden ? 'text' : 'password';
+                    icon.classList.toggle('fa-eye', !isHidden);
+                    icon.classList.toggle('fa-eye-slash', isHidden);
+                    this.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+                });
+            }
 
             // Receipt form
             document.getElementById('receipt-form').addEventListener('submit', function(e) {
