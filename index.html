@@ -360,7 +360,7 @@
             background: radial-gradient(circle, var(--accent-blue), transparent 70%);
             top: -10%;
             left: -8%;
-            animation: float 9s ease-in-out infinite;
+            animation: loginFloat 9s ease-in-out infinite;
         }
 
         #login-section::after {
@@ -370,10 +370,10 @@
             background: radial-gradient(circle, #00d4ff, transparent 70%);
             bottom: -12%;
             right: -8%;
-            animation: float 11s ease-in-out infinite reverse;
+            animation: loginFloat 11s ease-in-out infinite reverse;
         }
 
-        @keyframes float {
+        @keyframes loginFloat {
             0%, 100% { transform: translate(0, 0); }
             50% { transform: translate(20px, -25px); }
         }
@@ -479,6 +479,37 @@
         @keyframes glow {
             from { text-shadow: 0 0 10px rgba(100, 255, 218, 0.2); }
             to { text-shadow: 0 0 30px rgba(100, 255, 218, 0.6); }
+        }
+
+        /* Inline login error banner */
+        .login-error {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: rgba(220, 53, 69, 0.12);
+            border: 1px solid rgba(220, 53, 69, 0.5);
+            color: #ff8b95;
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 18px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            animation: shakeError 0.4s ease;
+        }
+
+        .login-error.active {
+            display: flex;
+        }
+
+        .login-error i {
+            font-size: 1.05rem;
+            flex: 0 0 auto;
+        }
+
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
         }
 
         #login-form .form-label {
@@ -1219,6 +1250,10 @@
             <h2 class="login-title" data-i18n="login.title">HISHYAR SALIH AHMED CO.</h2>
             <p class="login-subtitle" data-i18n="login.subtitle">FOR GENERAL TRADING CARS</p>
             <form id="login-form" novalidate>
+                <div class="login-error" id="login-error" role="alert">
+                    <i class="fas fa-circle-exclamation"></i>
+                    <span id="login-error-text"></span>
+                </div>
                 <div class="mb-3">
                     <label class="form-label" for="login-username" data-i18n="login.username">Username</label>
                     <div class="login-field">
@@ -2138,12 +2173,23 @@
                 // Messages
                 'msg.loginSuccess': 'Login successful!',
                 'msg.logoutSuccess': 'Logged out successfully',
+                'msg.enterCredentials': 'Please enter username and password',
+                'msg.invalidCredentials': 'Incorrect username or password',
+                'msg.tooManyAttempts': 'Too many failed attempts. Please try again in 5 minutes.',
                 'msg.saved': 'Receipt saved successfully!',
                 'msg.updated': 'Receipt updated successfully!',
                 'msg.deleted': 'Receipt deleted successfully!',
                 'msg.fillRequired': 'Please fill in all required fields',
                 'msg.noReceipt': 'No receipt selected',
+                'msg.saveFirst': 'Please save the receipt first',
                 'msg.exported': 'CSV exported successfully!',
+                'msg.dataExported': 'Data exported successfully!',
+                'msg.dataImported': 'Data imported successfully!',
+                'msg.importError': 'Error importing data: Invalid JSON format',
+                'msg.dbCleared': 'Database cleared successfully!',
+                'msg.companySaved': 'Company settings saved!',
+                'msg.userSaved': 'User settings saved!',
+                'msg.enterSearch': 'Please enter a search value',
                 
                 // Footer
                 'footer.copyright': 'All Rights Reserved'
@@ -2265,17 +2311,34 @@
                 // Messages
                 'msg.loginSuccess': 'تم تسجيل الدخول بنجاح!',
                 'msg.logoutSuccess': 'تم تسجيل الخروج بنجاح',
+                'msg.enterCredentials': 'يرجى إدخال اسم المستخدم وكلمة المرور',
+                'msg.invalidCredentials': 'اسم المستخدم أو كلمة المرور غير صحيحة',
+                'msg.tooManyAttempts': 'تم تجاوز عدد المحاولات المسموح بها. حاول مرة أخرى بعد 5 دقائق.',
                 'msg.saved': 'تم حفظ الإيصال بنجاح!',
                 'msg.updated': 'تم تحديث الإيصال بنجاح!',
                 'msg.deleted': 'تم حذف الإيصال بنجاح!',
                 'msg.fillRequired': 'يرجى ملء جميع الحقول المطلوبة',
                 'msg.noReceipt': 'لم يتم تحديد إيصال',
+                'msg.saveFirst': 'يرجى حفظ الإيصال أولاً',
                 'msg.exported': 'تم تصدير CSV بنجاح!',
+                'msg.dataExported': 'تم تصدير البيانات بنجاح!',
+                'msg.dataImported': 'تم استيراد البيانات بنجاح!',
+                'msg.importError': 'خطأ في استيراد البيانات: تنسيق JSON غير صالح',
+                'msg.dbCleared': 'تم مسح قاعدة البيانات بنجاح!',
+                'msg.companySaved': 'تم حفظ إعدادات الشركة!',
+                'msg.userSaved': 'تم حفظ إعدادات المستخدم!',
+                'msg.enterSearch': 'يرجى إدخال قيمة للبحث',
                 
                 // Footer
                 'footer.copyright': 'جميع الحقوق محفوظة'
             }
         };
+
+        // Translate a key using the current language, falling back to English then the key itself
+        function t(key) {
+            const lang = translations[currentLanguage] ? currentLanguage : 'en';
+            return translations[lang][key] || translations['en'][key] || key;
+        }
 
         // ==================== INITIALIZATION ====================
         document.addEventListener('DOMContentLoaded', function() {
@@ -2585,37 +2648,56 @@
             }
         }
 
+        function showLoginError(message) {
+            const box = document.getElementById('login-error');
+            document.getElementById('login-error-text').textContent = message;
+            box.classList.remove('active');
+            // Force reflow so the shake animation replays on repeated errors
+            void box.offsetWidth;
+            box.classList.add('active');
+        }
+
+        function clearLoginError() {
+            document.getElementById('login-error').classList.remove('active');
+        }
+
         function login(username, password) {
             // Secure authentication with hardcoded admin credentials
             const ADMIN_USERNAME = 'jumahishyar';
             const ADMIN_PASSWORD = 'Juma2001';
-            
+
             // Input validation
             if (!username || !password) {
-                showToast(currentLanguage === 'ar' ? 'يرجى إدخال اسم المستخدم وكلمة المرور' : 'Please enter username and password', 'error');
+                const msg = t('msg.enterCredentials');
+                showLoginError(msg);
+                showToast(msg, 'error');
                 return;
             }
-            
+
             // Trim whitespace
             username = username.trim();
             password = password.trim();
-            
+
             // Validate credentials
             if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                clearLoginError();
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('username', username);
                 localStorage.setItem('loginTime', new Date().toISOString());
+                localStorage.setItem('loginAttempts', '0');
                 showMainApp();
                 // Load dashboard data after successful login
                 setTimeout(() => loadDashboard(), 100);
-                showToast(currentLanguage === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Login successful!', 'success');
+                showToast(t('msg.loginSuccess'), 'success');
             } else {
                 // Add delay to prevent brute force attacks
                 const loginAttempts = parseInt(localStorage.getItem('loginAttempts') || '0');
                 localStorage.setItem('loginAttempts', (loginAttempts + 1).toString());
-                
+
                 if (loginAttempts >= 5) {
-                    showToast(currentLanguage === 'ar' ? 'تم تجاوز عدد المحاولات المسموح بها. حاول مرة أخرى بعد 5 دقائق.' : 'Too many failed attempts. Please try again in 5 minutes.', 'error');
+                    const msg = t('msg.tooManyAttempts');
+                    showLoginError(msg);
+                    showToast(msg, 'error');
                     // Disable login button temporarily
                     const loginBtn = document.querySelector('#login-section .btn-primary');
                     loginBtn.disabled = true;
@@ -2624,7 +2706,9 @@
                         localStorage.setItem('loginAttempts', '0');
                     }, 300000); // 5 minutes
                 } else {
-                    showToast(currentLanguage === 'ar' ? 'اسم المستخدم أو كلمة المرور غير صحيحة' : 'Invalid username or password', 'error');
+                    const msg = t('msg.invalidCredentials');
+                    showLoginError(msg);
+                    showToast(msg, 'error');
                 }
             }
         }
@@ -2636,7 +2720,8 @@
             document.getElementById('login-section').style.display = 'flex';
             document.getElementById('fab').style.display = 'none';
             document.getElementById('login-form').reset();
-            showToast('Logged out successfully', 'info');
+            clearLoginError();
+            showToast(t('msg.logoutSuccess'), 'info');
         }
 
         function showMainApp() {
@@ -2742,7 +2827,7 @@
 
             // Validation
             if (!receipt.receiptNumber || !receipt.customerName || !receipt.carName || !receipt.category || !receipt.date) {
-                showToast('Please fill in all required fields', 'error');
+                showToast(t('msg.fillRequired'), 'error');
                 return;
             }
 
@@ -2751,7 +2836,7 @@
             addReceipt(receipt).then(id => {
                 hideLoading();
                 currentReceiptId = id;
-                showToast('Receipt saved successfully!', 'success');
+                showToast(t('msg.saved'), 'success');
                 generateReceiptNumber();
                 refreshAllData();
             }).catch(error => {
@@ -2762,7 +2847,7 @@
 
         function updateReceipt() {
             if (!currentReceiptId) {
-                showToast('No receipt selected for update', 'warning');
+                showToast(t('msg.noReceipt'), 'warning');
                 return;
             }
 
@@ -2787,7 +2872,7 @@
 
             updateReceiptDB(receipt).then(() => {
                 hideLoading();
-                showToast('Receipt updated successfully!', 'success');
+                showToast(t('msg.updated'), 'success');
                 refreshAllData();
             }).catch(error => {
                 hideLoading();
@@ -2797,7 +2882,7 @@
 
         function deleteReceipt() {
             if (!currentReceiptId) {
-                showToast('No receipt selected for deletion', 'warning');
+                showToast(t('msg.noReceipt'), 'warning');
                 return;
             }
 
@@ -2807,7 +2892,7 @@
                     hideLoading();
                     currentReceiptId = null;
                     resetReceiptForm();
-                    showToast('Receipt deleted successfully!', 'success');
+                    showToast(t('msg.deleted'), 'success');
                     refreshAllData();
                 }).catch(error => {
                     hideLoading();
@@ -3092,7 +3177,7 @@
                     hideLoading();
                     loadDatabase();
                     refreshAllData();
-                    showToast('Receipt deleted successfully!', 'success');
+                    showToast(t('msg.deleted'), 'success');
                 }).catch(error => {
                     hideLoading();
                     showToast('Error deleting receipt: ' + error, 'error');
@@ -3123,7 +3208,7 @@
             });
 
             downloadFile(csv, 'receipts.csv', 'text/csv');
-            showToast('CSV exported successfully!', 'success');
+            showToast(t('msg.exported'), 'success');
         }
 
         // ==================== SEARCH ====================
@@ -3132,7 +3217,7 @@
             const searchValue = document.getElementById('search-value').value.toLowerCase();
 
             if (!searchValue) {
-                showToast('Please enter a search value', 'warning');
+                showToast(t('msg.enterSearch'), 'warning');
                 return;
             }
 
@@ -3249,7 +3334,7 @@
         function printReceipt() {
             const receiptNumber = document.getElementById('receipt-number').value;
             if (!receiptNumber) {
-                showToast('Please save the receipt first', 'warning');
+                showToast(t('msg.saveFirst'), 'warning');
                 return;
             }
 
@@ -3266,7 +3351,7 @@
         function previewReceipt() {
             const receiptNumber = document.getElementById('receipt-number').value;
             if (!receiptNumber) {
-                showToast('Please save the receipt first', 'warning');
+                showToast(t('msg.saveFirst'), 'warning');
                 return;
             }
 
@@ -3455,7 +3540,7 @@
             saveSetting('companyName', companyName);
             saveSetting('logoUrl', logoUrl);
             
-            showToast('Company settings saved!', 'success');
+            showToast(t('msg.companySaved'), 'success');
         }
 
         function saveUserSettings() {
@@ -3469,7 +3554,7 @@
                 localStorage.setItem('password', password);
             }
             
-            showToast('User settings saved!', 'success');
+            showToast(t('msg.userSaved'), 'success');
             document.getElementById('settings-username').value = '';
             document.getElementById('settings-password').value = '';
         }
@@ -3491,7 +3576,7 @@
             
             hideLoading();
             downloadFile(JSON.stringify(data, null, 2), 'receipt-backup.json', 'application/json');
-            showToast('Data exported successfully!', 'success');
+            showToast(t('msg.dataExported'), 'success');
         }
 
         function importDataJSON(event) {
@@ -3518,14 +3603,14 @@
                             
                             transaction.oncomplete = function() {
                                 hideLoading();
-                                showToast('Data imported successfully!', 'success');
+                                showToast(t('msg.dataImported'), 'success');
                                 refreshAllData();
                             };
                         };
                     }
                 } catch (error) {
                     hideLoading();
-                    showToast('Error importing data: Invalid JSON format', 'error');
+                    showToast(t('msg.importError'), 'error');
                 }
             };
             reader.readAsText(file);
@@ -3545,7 +3630,7 @@
                 
                 objectStore.clear().onsuccess = function() {
                     hideLoading();
-                    showToast('Database cleared successfully!', 'success');
+                    showToast(t('msg.dbCleared'), 'success');
                     refreshAllData();
                 };
                 
@@ -3641,6 +3726,11 @@
                 const username = document.getElementById('login-username').value;
                 const password = document.getElementById('login-password').value;
                 login(username, password);
+            });
+
+            // Clear the inline login error as soon as the user edits a field
+            ['login-username', 'login-password'].forEach(id => {
+                document.getElementById(id).addEventListener('input', clearLoginError);
             });
 
             // Password visibility toggle
