@@ -1,0 +1,3576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HISHYAR SALIH AHMED CO. - Receipt Management System</title>
+    <meta name="description" content="Professional Receipt Management System">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
+    <link rel="manifest" href="favicon/site.webmanifest">
+    <meta name="theme-color" content="#0a192f">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts - English (Inter) and Arabic (Cairo) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- QRCode.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <!-- JsBarcode -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <style>
+        /* ==================== ROOT VARIABLES ==================== */
+        :root {
+            --primary-dark: #0a192f;
+            --primary-blue: #112240;
+            --secondary-blue: #233554;
+            --accent-blue: #64ffda;
+            --text-light: #ccd6f6;
+            --text-white: #ffffff;
+            --glass-bg: rgba(17, 34, 64, 0.85);
+            --glass-border: rgba(100, 255, 218, 0.1);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+            --gradient: linear-gradient(135deg, #0a192f 0%, #112240 100%);
+        }
+
+        /* ==================== GLOBAL STYLES ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gradient);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background */
+        .animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .animated-background::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 20% 80%, rgba(100, 255, 218, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(100, 255, 218, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 40%, rgba(100, 255, 218, 0.05) 0%, transparent 30%);
+            animation: gradientMove 15s ease-in-out infinite;
+        }
+
+        @keyframes gradientMove {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(2%, 2%) rotate(1deg); }
+            50% { transform: translate(0, 4%) rotate(0deg); }
+            75% { transform: translate(-2%, 2%) rotate(-1deg); }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 20s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        body[dir="rtl"] {
+            font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            direction: rtl;
+            text-align: right;
+        }
+
+        body[dir="rtl"] .navbar-brand i {
+            margin-right: 0;
+            margin-left: 10px;
+        }
+
+        body[dir="rtl"] .nav-link i {
+            margin-right: 0;
+            margin-left: 8px;
+        }
+
+        body[dir="rtl"] .me-2 {
+            margin-right: 0 !important;
+            margin-left: 0.5rem !important;
+        }
+
+        body[dir="rtl"] .ms-2 {
+            margin-left: 0 !important;
+            margin-right: 0.5rem !important;
+        }
+
+        body[dir="rtl"] .input-group-text {
+            border-radius: 0 8px 8px 0 !important;
+        }
+
+        body[dir="rtl"] .form-control {
+            border-radius: 8px 0 0 8px !important;
+        }
+
+        body[dir="rtl"] .receipt-row {
+            flex-direction: row-reverse;
+        }
+
+        body[dir="rtl"] .receipt-row span:first-child {
+            margin-left: auto;
+        }
+
+        body[dir="rtl"] .detail-row {
+            flex-direction: row-reverse;
+        }
+
+        body[dir="rtl"] .detail-row span:first-child {
+            margin-left: auto;
+        }
+
+        body.light-mode {
+            --primary-dark: #f8f9fa;
+            --primary-blue: #ffffff;
+            --secondary-blue: #e9ecef;
+            --accent-blue: #0d6efd;
+            --text-light: #212529;
+            --text-white: #000000;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(13, 110, 253, 0.2);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        /* ==================== SCROLLBAR ==================== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-blue);
+            border-radius: 4px;
+        }
+
+        /* ==================== GLASSMORPHISM ==================== */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+        }
+
+        /* ==================== NAVIGATION ==================== */
+        .navbar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--accent-blue) !important;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .navbar-brand i {
+            margin-right: 10px;
+        }
+
+        .nav-link {
+            color: var(--text-light) !important;
+            font-weight: 500;
+            padding: 10px 20px !important;
+            border-radius: 8px;
+            transition: var(--transition);
+            margin: 0 5px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--accent-blue);
+            color: var(--primary-dark) !important;
+        }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        /* ==================== MOBILE MENU ==================== */
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            z-index: 999;
+            border-bottom: 1px solid var(--glass-border);
+            animation: slideDown 0.3s ease;
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mobile-menu .nav-link {
+            display: block;
+            margin: 10px 0;
+            padding: 15px !important;
+        }
+
+        /* ==================== PAGE SECTIONS ==================== */
+        .page-section {
+            display: none;
+            padding: 30px 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ==================== LOGIN PAGE ==================== */
+        #login-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .login-card {
+            max-width: 450px;
+            width: 100%;
+            padding: 50px 40px;
+            animation: slideUp 0.8s ease;
+            position: relative;
+            overflow: hidden;
+            border-radius: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 40px 30px;
+                max-width: 100%;
+            }
+
+            .login-logo {
+                width: 90px;
+                height: 90px;
+                margin: 0 auto 20px;
+            }
+
+            .login-logo img {
+                width: 70px;
+                height: 70px;
+            }
+
+            .login-title {
+                font-size: 1.5rem;
+            }
+
+            #login-form .form-control {
+                padding: 12px 15px;
+                font-size: 0.95rem;
+            }
+
+            #login-section .btn-primary {
+                padding: 13px 30px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 35px 25px;
+            }
+
+            .login-logo {
+                width: 80px;
+                height: 80px;
+            }
+
+            .login-logo img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .login-title {
+                font-size: 1.3rem;
+            }
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), #00d4ff, var(--accent-blue));
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-logo {
+            width: 110px;
+            height: 110px;
+            background: linear-gradient(135deg, var(--accent-blue), #00d4ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            font-size: 3rem;
+            color: var(--primary-dark);
+            padding: 15px;
+            box-shadow: 0 0 30px rgba(100, 255, 218, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .login-logo img {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .login-logo:hover img {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(100, 255, 218, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(100, 255, 218, 0.6); }
+        }
+
+        .navbar-brand img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            object-fit: contain;
+        }
+
+        .login-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--accent-blue);
+            font-weight: 700;
+            font-size: 1.8rem;
+            text-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(100, 255, 218, 0.2); }
+            to { text-shadow: 0 0 30px rgba(100, 255, 218, 0.6); }
+        }
+
+        #login-form .form-control {
+            background: var(--secondary-blue);
+            border: 2px solid var(--glass-border);
+            color: var(--text-light);
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        #login-form .form-control:focus {
+            background: var(--primary-blue);
+            border-color: var(--accent-blue);
+            color: var(--text-light);
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.3);
+            transform: translateY(-2px);
+            outline: none;
+        }
+
+        #login-form .form-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent-blue);
+            font-size: 0.95rem;
+        }
+
+        .form-control::placeholder {
+            color: rgba(204, 214, 246, 0.5);
+        }
+
+        #login-section .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue), #00d4ff);
+            border: none;
+            color: var(--primary-dark);
+            padding: 15px 40px;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: var(--transition);
+            width: 100%;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #login-section .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+
+        #login-section .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        #login-section .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(100, 255, 218, 0.5);
+        }
+
+        #login-section .btn-primary:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-blue);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-blue);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        /* ==================== DASHBOARD ==================== */
+        .stat-card {
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-blue);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--accent-blue);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .chart-container {
+            padding: 25px;
+            margin-bottom: 25px;
+            height: 400px;
+        }
+
+        .chart-container h5 {
+            color: var(--accent-blue);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        /* ==================== TABLES ==================== */
+        .table-container {
+            padding: 25px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+
+        .table {
+            color: var(--text-light);
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table thead th {
+            background: var(--secondary-blue);
+            color: var(--accent-blue);
+            font-weight: 600;
+            border: none;
+            padding: 15px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .table tbody td {
+            padding: 15px;
+            border-bottom: 1px solid var(--glass-border);
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background: var(--secondary-blue);
+        }
+
+        .table .btn-sm {
+            padding: 5px 10px;
+            margin: 0 2px;
+            font-size: 0.85rem;
+        }
+
+        /* ==================== FORMS ==================== */
+        .form-label {
+            color: var(--text-light);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-select {
+            background: var(--secondary-blue);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-select:focus {
+            background: var(--primary-blue);
+            border-color: var(--accent-blue);
+            color: var(--text-light);
+            box-shadow: 0 0 0 0.2rem rgba(100, 255, 218, 0.25);
+        }
+
+        /* ==================== RECEIPT DETAILS ==================== */
+        .receipt-preview {
+            padding: 40px;
+            background: white;
+            color: #333;
+            border-radius: 8px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .receipt-header {
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .receipt-header h2 {
+            color: #0a192f;
+            font-weight: 700;
+        }
+
+        .receipt-number {
+            font-size: 1.2rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .receipt-section {
+            margin-bottom: 25px;
+        }
+
+        .receipt-section h4 {
+            color: #0a192f;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .receipt-row span:first-child {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .receipt-row span:last-child {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .receipt-total {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .receipt-total .receipt-row {
+            border-bottom: none;
+            font-size: 1.2rem;
+        }
+
+        .qr-barcode {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        /* ==================== SEARCH CARDS ==================== */
+        .search-result-card {
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .search-result-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-result-card h5 {
+            color: var(--accent-blue);
+            margin-bottom: 15px;
+        }
+
+        .search-result-card .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        /* ==================== TOAST NOTIFICATIONS ==================== */
+        .toast-container {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+            border-radius: 12px;
+            padding: 15px 25px;
+            margin-bottom: 10px;
+            animation: slideInRight 0.3s ease;
+            min-width: 300px;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast.error {
+            border-left: 4px solid #dc3545;
+        }
+
+        .toast.warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .toast.info {
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        /* ==================== LOADING SPINNER ==================== */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 25, 47, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--secondary-blue);
+            border-top: 4px solid var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ==================== MODAL ==================== */
+        .modal-content {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-light);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .btn-close {
+            filter: invert(1);
+        }
+
+        /* ==================== FOOTER ==================== */
+        footer {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--glass-border);
+            padding: 20px 0;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        footer p {
+            color: var(--text-light);
+            opacity: 0.7;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 991px) {
+            .hamburger {
+                display: block;
+            }
+
+            .navbar-nav {
+                display: none;
+            }
+
+            .stat-card {
+                margin-bottom: 20px;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .login-card {
+                padding: 30px 20px;
+            }
+
+            .receipt-preview {
+                padding: 20px;
+            }
+
+            .qr-barcode {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+
+            .page-section {
+                padding: 20px 10px;
+            }
+
+            .table-container {
+                padding: 15px;
+            }
+
+            .table thead th,
+            .table tbody td {
+                padding: 10px 8px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* ==================== PRINT STYLES ==================== */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #receipt-details-section,
+            #receipt-details-section * {
+                visibility: visible;
+            }
+
+            #receipt-details-section {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 20px;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* ==================== FLOATING ACTION BUTTON ==================== */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(100, 255, 218, 0.4);
+            transition: var(--transition);
+            z-index: 1000;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        /* ==================== SETTINGS ==================== */
+        .settings-section {
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .settings-section h5 {
+            color: var(--accent-blue);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .theme-toggle .toggle-switch {
+            width: 60px;
+            height: 30px;
+            background: var(--secondary-blue);
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-toggle .toggle-switch.active {
+            background: var(--accent-blue);
+        }
+
+        .theme-toggle .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: var(--transition);
+        }
+
+        .theme-toggle .toggle-switch.active::after {
+            left: 32px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-background"></div>
+    
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- ==================== LOGIN SECTION ==================== -->
+    <section id="login-section" class="page-section active">
+        <div class="login-card glass">
+            <div class="login-logo">
+                <img src="favicon/apple-touch-icon.png" alt="HISHYAR SALIH AHMED CO.">
+            </div>
+            <h2 class="login-title" data-i18n="login.title">HISHYAR SALIH AHMED CO.</h2>
+            <p class="text-center mb-4" style="opacity: 0.8;" data-i18n="login.subtitle ">FOR GENERAL TRADING CARS</p>
+            <style>
+               
+            </style>
+            <form id="login-form">
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="login.username">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text" style="background: var(--secondary-blue); border: 1px solid var(--glass-border); color: var(--text-light);">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        <input type="text" class="form-control" id="login-username" data-i18n="login.username" placeholder="Enter username" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="login.password">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text" style="background: var(--secondary-blue); border: 1px solid var(--glass-border); color: var(--text-light);">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" class="form-control" id="login-password" data-i18n="login.password" placeholder="Enter password" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="remember-me" style="background: var(--secondary-blue); border-color: var(--glass-border);">
+                    <label class="form-check-label" for="remember-me" data-i18n="login.rememberMe">Remember Me</label>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-sign-in-alt me-2"></i><span data-i18n="login.loginBtn">Login</span>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- ==================== MAIN APP ==================== -->
+    <div id="main-app" style="display: none;">
+        <!-- ==================== NAVBAR ==================== -->
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" href="#" onclick="navigateTo('dashboard')">
+                    <img src="favicon/apple-touch-icon.png" alt="HISHYAR CO." style="width: 40px; height: 40px; margin-right: 10px; object-fit: contain;">
+                    HISHYAR CO.
+                </a>
+                
+                <button class="hamburger" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="navbar-nav ms-auto" id="desktop-nav">
+                    <a class="nav-link active" href="#" onclick="navigateTo('dashboard')" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt me-2"></i><span data-i18n="nav.dashboard">Dashboard</span>
+                    </a>
+                    <a class="nav-link" href="#" onclick="navigateTo('receipt')" data-page="receipt">
+                        <i class="fas fa-plus-circle me-2"></i><span data-i18n="nav.newReceipt">New Receipt</span>
+                    </a>
+                    <a class="nav-link" href="#" onclick="navigateTo('database')" data-page="database">
+                        <i class="fas fa-database me-2"></i><span data-i18n="nav.database">Database</span>
+                    </a>
+                    <a class="nav-link" href="#" onclick="navigateTo('search')" data-page="search">
+                        <i class="fas fa-search me-2"></i><span data-i18n="nav.search">Search</span>
+                    </a>
+                    <a class="nav-link" href="#" onclick="navigateTo('reports')" data-page="reports">
+                        <i class="fas fa-chart-bar me-2"></i><span data-i18n="nav.reports">Reports</span>
+                    </a>
+                    <a class="nav-link" href="#" onclick="navigateTo('settings')" data-page="settings">
+                        <i class="fas fa-cog me-2"></i><span data-i18n="nav.settings">Settings</span>
+                    </a>
+                    <a class="nav-link" href="#" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-2"></i><span data-i18n="nav.logout">Logout</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- ==================== MOBILE MENU ==================== -->
+        <div class="mobile-menu" id="mobile-menu">
+            <a class="nav-link" href="#" onclick="navigateTo('dashboard'); toggleMobileMenu();">
+                <i class="fas fa-tachometer-alt me-2"></i><span data-i18n="nav.dashboard">Dashboard</span>
+            </a>
+            <a class="nav-link" href="#" onclick="navigateTo('receipt'); toggleMobileMenu();">
+                <i class="fas fa-plus-circle me-2"></i><span data-i18n="nav.newReceipt">New Receipt</span>
+            </a>
+            <a class="nav-link" href="#" onclick="navigateTo('database'); toggleMobileMenu();">
+                <i class="fas fa-database me-2"></i><span data-i18n="nav.database">Database</span>
+            </a>
+            <a class="nav-link" href="#" onclick="navigateTo('search'); toggleMobileMenu();">
+                <i class="fas fa-search me-2"></i><span data-i18n="nav.search">Search</span>
+            </a>
+            <a class="nav-link" href="#" onclick="navigateTo('reports'); toggleMobileMenu();">
+                <i class="fas fa-chart-bar me-2"></i><span data-i18n="nav.reports">Reports</span>
+            </a>
+            <a class="nav-link" href="#" onclick="navigateTo('settings'); toggleMobileMenu();">
+                <i class="fas fa-cog me-2"></i><span data-i18n="nav.settings">Settings</span>
+            </a>
+            <a class="nav-link" href="#" onclick="logout(); toggleMobileMenu();">
+                <i class="fas fa-sign-out-alt me-2"></i><span data-i18n="nav.logout">Logout</span>
+            </a>
+        </div>
+
+        <!-- ==================== DASHBOARD SECTION ==================== -->
+        <section id="dashboard-section" class="page-section">
+            <div class="container">
+                <h2 class="mb-4" style="color: var(--accent-blue);">
+                    <i class="fas fa-tachometer-alt me-2"></i><span data-i18n="dashboard.title">Dashboard</span>
+                </h2>
+                
+                <!-- Statistics Cards -->
+                <div class="row">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card glass">
+                            <div class="stat-icon">
+                                <i class="fas fa-file-invoice"></i>
+                            </div>
+                            <div class="stat-value" id="stat-total-receipts">0</div>
+                            <div class="stat-label" data-i18n="stat.totalReceipts">Total Receipts</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card glass">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                            <div class="stat-value" id="stat-today-receipts">0</div>
+                            <div class="stat-label" data-i18n="stat.todayReceipts">Today's Receipts</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card glass">
+                            <div class="stat-icon">
+                                <i class="fas fa-shipping-fast"></i>
+                            </div>
+                            <div class="stat-value" id="stat-total-customs">$0</div>
+                            <div class="stat-label" data-i18n="stat.totalCustoms">Total Customs</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="stat-card glass">
+                            <div class="stat-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="stat-value" id="stat-total-received">$0</div>
+                            <div class="stat-label" data-i18n="stat.totalReceived">Total Received</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="chart-container glass">
+                            <h5><i class="fas fa-chart-line me-2"></i><span data-i18n="chart.monthlyIncome">Monthly Income</span></h5>
+                            <canvas id="monthly-income-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="chart-container glass">
+                            <h5><i class="fas fa-chart-pie me-2"></i><span data-i18n="chart.receiptDistribution">Receipt Distribution</span></h5>
+                            <canvas id="receipt-distribution-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Receipts -->
+                <div class="table-container glass">
+                    <h5 style="color: var(--accent-blue); margin-bottom: 20px;">
+                        <i class="fas fa-clock me-2"></i><span data-i18n="recentReceipts">Recent Receipts</span>
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Receipt #</th>
+                                    <th>Customer</th>
+                                    <th>Car</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-receipts-body">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row mt-4">
+                    <div class="col-md-3">
+                        <button class="btn-primary w-100" onclick="navigateTo('receipt')">
+                            <i class="fas fa-plus-circle me-2"></i><span data-i18n="nav.newReceipt">New Receipt</span>
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn-secondary w-100" onclick="navigateTo('search')">
+                            <i class="fas fa-search me-2"></i><span data-i18n="nav.search">Search</span>
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn-secondary w-100" onclick="navigateTo('reports')">
+                            <i class="fas fa-chart-bar me-2"></i><span data-i18n="nav.reports">Reports</span>
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn-secondary w-100" onclick="navigateTo('settings')">
+                            <i class="fas fa-cog me-2"></i><span data-i18n="nav.settings">Settings</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== RECEIPT ENTRY SECTION ==================== -->
+        <section id="receipt-section" class="page-section">
+            <div class="container">
+                <h2 class="mb-4" style="color: var(--accent-blue);">
+                    <i class="fas fa-plus-circle me-2"></i><span data-i18n="receipt.title">Receipt Entry</span>
+                </h2>
+                
+                <div class="glass" style="padding: 30px;">
+                    <form id="receipt-form">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="receipt.number">Receipt Number</label>
+                                    <input type="text" class="form-control" id="receipt-number" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="receipt.date">Date</label>
+                                    <input type="date" class="form-control" id="receipt-date" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" data-i18n="receipt.fullName">Full Name</label>
+                            <input type="text" class="form-control" id="customer-name" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="receipt.carName">Car Name</label>
+                                    <input type="text" class="form-control" id="car-name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="receipt.category">Category</label>
+                                    <select class="form-select" id="car-category" data-i18n-options="category" required>
+                                        <option value="">Select Category</option>
+                                        <option value="Sedan" data-i18n="category.sedan">Sedan</option>
+                                        <option value="SUV" data-i18n="category.suv">SUV</option>
+                                        <option value="Truck" data-i18n="category.truck">Truck</option>
+                                        <option value="Van" data-i18n="category.van">Van</option>
+                                        <option value="Sports" data-i18n="category.sports">Sports</option>
+                                        <option value="Luxury" data-i18n="category.luxury">Luxury</option>
+                                        <option value="Other" data-i18n="category.other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="receipt.color">Color</label>
+                                    <input type="text" class="form-control" id="car-color">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="receipt.vin">VIN Number</label>
+                                    <input type="text" class="form-control" id="vin-number">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="receipt.model">Model</label>
+                                    <input type="text" class="form-control" id="car-model">
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr style="border-color: var(--glass-border); margin: 30px 0;">
+
+                        <h5 style="color: var(--accent-blue); margin-bottom: 20px;">
+                            <i class="fas fa-dollar-sign me-2"></i><span data-i18n="receipt.financial">Financial Details</span>
+                        </h5>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="receipt.customs">Customs Amount ($)</label>
+                                    <input type="number" class="form-control" id="customs-amount" step="0.01" oninput="calculateTotal()">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="receipt.expenses">Expenses ($)</label>
+                                    <input type="number" class="form-control" id="expenses" step="0.01" oninput="calculateTotal()">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="receipt.received">Received Amount ($)</label>
+                                    <input type="number" class="form-control" id="received-amount" step="0.01" oninput="calculateTotal()">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" data-i18n="receipt.total">Total Amount ($)</label>
+                            <input type="number" class="form-control" id="total-amount" step="0.01" readonly style="font-weight: 700; font-size: 1.2rem; color: var(--accent-blue);">
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-md-2">
+                                <button type="submit" class="btn-primary w-100">
+                                    <i class="fas fa-save me-2"></i><span data-i18n="btn.save">Save</span>
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn-secondary w-100" onclick="updateReceipt()">
+                                    <i class="fas fa-edit me-2"></i><span data-i18n="btn.update">Update</span>
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn-danger w-100" onclick="deleteReceipt()">
+                                    <i class="fas fa-trash me-2"></i><span data-i18n="btn.delete">Delete</span>
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn-secondary w-100" onclick="resetReceiptForm()">
+                                    <i class="fas fa-redo me-2"></i><span data-i18n="btn.reset">Reset</span>
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn-success w-100" onclick="printReceipt()">
+                                    <i class="fas fa-print me-2"></i><span data-i18n="btn.print">Print</span>
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn-secondary w-100" onclick="previewReceipt()">
+                                    <i class="fas fa-eye me-2"></i><span data-i18n="btn.preview">Preview</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== DATABASE SECTION ==================== -->
+        <section id="database-section" class="page-section">
+            <div class="container">
+                <h2 class="mb-4" style="color: var(--accent-blue);">
+                    <i class="fas fa-database me-2"></i><span data-i18n="database.title">Database</span>
+                </h2>
+                
+                <!-- Search and Filter -->
+                <div class="glass mb-4" style="padding: 20px;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="database-search" data-i18n="database.search" placeholder="Search..." oninput="filterDatabase()">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="database-filter" data-i18n-options="category" onchange="filterDatabase()">
+                                <option value="" data-i18n="database.allCategories">All Categories</option>
+                                <option value="Sedan" data-i18n="category.sedan">Sedan</option>
+                                <option value="SUV" data-i18n="category.suv">SUV</option>
+                                <option value="Truck" data-i18n="category.truck">Truck</option>
+                                <option value="Van" data-i18n="category.van">Van</option>
+                                <option value="Sports" data-i18n="category.sports">Sports</option>
+                                <option value="Luxury" data-i18n="category.luxury">Luxury</option>
+                                <option value="Other" data-i18n="category.other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="database-sort" onchange="filterDatabase()">
+                                <option value="date-desc">Date (Newest)</option>
+                                <option value="date-asc">Date (Oldest)</option>
+                                <option value="amount-desc">Amount (High)</option>
+                                <option value="amount-asc">Amount (Low)</option>
+                                <option value="name-asc">Name (A-Z)</option>
+                                <option value="name-desc">Name (Z-A)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn-secondary w-100" onclick="exportToCSV()">
+                                <i class="fas fa-file-csv me-2"></i><span data-i18n="database.export">Export CSV</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database Table -->
+                <div class="table-container glass">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortTable('receiptNumber')">Receipt # <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable('customerName')">Customer <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable('carName')">Car <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable('category')">Category <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable('date')">Date <i class="fas fa-sort"></i></th>
+                                    <th onclick="sortTable('totalAmount')">Total <i class="fas fa-sort"></i></th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="database-body">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center" id="pagination">
+                            <!-- Dynamic content -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SEARCH SECTION ==================== -->
+        <section id="search-section" class="page-section">
+            <div class="container">
+                <h2 class="mb-4" style="color: var(--accent-blue);">
+                    <i class="fas fa-search me-2"></i><span data-i18n="search.title">Search</span>
+                </h2>
+                
+                <div class="glass mb-4" style="padding: 25px;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label" data-i18n="search.by">Search By</label>
+                            <select class="form-select" id="search-type">
+                                <option value="receiptNumber">Receipt Number</option>
+                                <option value="vin">VIN Number</option>
+                                <option value="customerName">Customer Name</option>
+                                <option value="carName">Car Name</option>
+                                <option value="date">Date</option>
+                                <option value="category">Category</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" data-i18n="search.value">Search Value</label>
+                            <input type="text" class="form-control" id="search-value" data-i18n="search.value" placeholder="Enter search value...">
+                        </div>
+                    </div>
+                    <button class="btn-primary mt-3" onclick="performSearch()">
+                        <i class="fas fa-search me-2"></i><span data-i18n="search.btn">Search</span>
+                    </button>
+                </div>
+
+                <div id="search-results">
+                    <!-- Dynamic search results -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== RECEIPT DETAILS SECTION ==================== -->
+        <section id="receipt-details-section" class="page-section">
+            <div class="container">
+                <div class="no-print mb-4">
+                    <button class="btn-secondary" onclick="navigateTo('database')">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Database
+                    </button>
+                    <button class="btn-primary ms-2" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Print
+                    </button>
+                    <button class="btn-success ms-2" onclick="downloadPDF()">
+                        <i class="fas fa-file-pdf me-2"></i>Download PDF
+                    </button>
+                </div>
+
+                <div class="receipt-preview glass" id="receipt-preview-content">
+                    <div class="receipt-header">
+                        <h2>HISHYAR SALIH AHMED CO.</h2>
+                        <p>Receipt Management System</p>
+                        <div class="receipt-number" id="preview-receipt-number">Receipt #000001</div>
+                    </div>
+
+                    <div class="receipt-section">
+                        <h4>Customer Details</h4>
+                        <div class="receipt-row">
+                            <span>Full Name:</span>
+                            <span id="preview-customer-name">-</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span>Date:</span>
+                            <span id="preview-date">-</span>
+                        </div>
+                    </div>
+
+                    <div class="receipt-section">
+                        <h4>Vehicle Details</h4>
+                        <div class="receipt-row">
+                            <span>Car Name:</span>
+                            <span id="preview-car-name">-</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span>Category:</span>
+                            <span id="preview-category">-</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span>Color:</span>
+                            <span id="preview-color">-</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span>VIN Number:</span>
+                            <span id="preview-vin">-</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span>Model:</span>
+                            <span id="preview-model">-</span>
+                        </div>
+                    </div>
+
+                    <div class="receipt-section">
+                        <h4>Financial Details</h4>
+                        <div class="receipt-row">
+                            <span>Customs Amount:</span>
+                            <span id="preview-customs">$0.00</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span>Expenses:</span>
+                            <span id="preview-expenses">$0.00</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span>Received Amount:</span>
+                            <span id="preview-received">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="receipt-total">
+                        <div class="receipt-row">
+                            <span>Total Amount:</span>
+                            <span id="preview-total">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="qr-barcode">
+                        <div id="qrcode"></div>
+                        <svg id="barcode"></svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== REPORTS SECTION ==================== -->
+        <section id="reports-section" class="page-section">
+            <div class="container">
+                <h2 class="mb-4" style="color: var(--accent-blue);">
+                    <i class="fas fa-chart-bar me-2"></i><span data-i18n="reports.title">Reports</span>
+                </h2>
+                
+                <!-- Report Type Selector -->
+                <div class="glass mb-4" style="padding: 25px;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label" data-i18n="reports.type">Report Type</label>
+                            <select class="form-select" id="report-type" onchange="generateReport()">
+                                <option value="daily" data-i18n="reports.daily">Daily Report</option>
+                                <option value="weekly" data-i18n="reports.weekly">Weekly Report</option>
+                                <option value="monthly" data-i18n="reports.monthly">Monthly Report</option>
+                                <option value="yearly" data-i18n="reports.yearly">Yearly Report</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-control" id="report-date" onchange="generateReport()">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                                <button class="btn-primary me-2" onclick="exportReportPDF()">
+                                    <i class="fas fa-file-pdf me-2"></i><span data-i18n="reports.exportPdf">Export PDF</span>
+                                </button>
+                                <button class="btn-success" onclick="exportReportExcel()">
+                                    <i class="fas fa-file-excel me-2"></i><span data-i18n="reports.exportExcel">Export Excel</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Charts -->
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="chart-container glass">
+                            <h5><i class="fas fa-chart-bar me-2"></i><span data-i18n="reports.incomeExpenses">Income vs Expenses</span></h5>
+                            <canvas id="income-expenses-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="chart-container glass">
+                            <h5><i class="fas fa-chart-area me-2"></i><span data-i18n="reports.trends">Receipt Trends</span></h5>
+                            <canvas id="receipt-trends-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Summary -->
+                <div class="table-container glass mt-4">
+                    <h5 style="color: var(--accent-blue); margin-bottom: 20px;">
+                        <i class="fas fa-table me-2"></i><span data-i18n="reports.summary">Report Summary</span>
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-summary-body">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SETTINGS SECTION ==================== -->
+        <section id="settings-section" class="page-section">
+            <div class="container">
+                <h2 class="mb-4" style="color: var(--accent-blue);">
+                    <i class="fas fa-cog me-2"></i><span data-i18n="settings.title">Settings</span>
+                </h2>
+                
+                <!-- Company Information -->
+                <div class="settings-section glass">
+                    <h5><i class="fas fa-building me-2"></i><span data-i18n="settings.company">Company Information</span></h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" data-i18n="settings.companyName">Company Name</label>
+                                <input type="text" class="form-control" id="settings-company-name" value="HISHYAR SALIH AHMED CO.">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" data-i18n="settings.logoUrl">Logo URL</label>
+                                <input type="text" class="form-control" id="settings-logo-url" placeholder="Enter logo URL">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="saveCompanySettings()">
+                        <i class="fas fa-save me-2"></i><span data-i18n="settings.save">Save Settings</span>
+                    </button>
+                </div>
+
+                <!-- Theme Settings -->
+                <div class="settings-section glass">
+                    <h5><i class="fas fa-palette me-2"></i><span data-i18n="settings.theme">Theme</span></h5>
+                    <div class="theme-toggle">
+                        <span data-i18n="settings.darkMode">Dark Mode</span>
+                        <div class="toggle-switch active" id="theme-toggle" onclick="toggleTheme()"></div>
+                        <span data-i18n="settings.lightMode">Light Mode</span>
+                    </div>
+                </div>
+
+                <!-- Language Settings -->
+                <div class="settings-section glass">
+                    <h5><i class="fas fa-language me-2"></i><span data-i18n="settings.language">Language</span></h5>
+                    <div class="theme-toggle">
+                        <span data-i18n="settings.english">English</span>
+                        <div class="toggle-switch" id="language-toggle" onclick="toggleLanguage()"></div>
+                        <span data-i18n="settings.arabic">العربية</span>
+                    </div>
+                </div>
+
+                <!-- Data Management -->
+                <div class="settings-section glass">
+                    <h5><i class="fas fa-database me-2"></i><span data-i18n="settings.data">Data Management</span></h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <button class="btn-success w-100 mb-3" onclick="exportDataJSON()">
+                                <i class="fas fa-download me-2"></i><span data-i18n="settings.exportJson">Export JSON</span>
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn-primary w-100 mb-3" onclick="document.getElementById('import-json').click()">
+                                <i class="fas fa-upload me-2"></i><span data-i18n="settings.importJson">Import JSON</span>
+                            </button>
+                            <input type="file" id="import-json" accept=".json" style="display: none;" onchange="importDataJSON(event)">
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn-secondary w-100 mb-3" onclick="backupData()">
+                                <i class="fas fa-save me-2"></i><span data-i18n="settings.backup">Backup Data</span>
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn-danger w-100 mb-3" onclick="clearDatabase()">
+                                <i class="fas fa-trash me-2"></i><span data-i18n="settings.clear">Clear Database</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Settings -->
+                <div class="settings-section glass">
+                    <h5><i class="fas fa-user me-2"></i><span data-i18n="settings.user">User Settings</span></h5>
+                    <div class="mb-3">
+                        <label class="form-label" data-i18n="settings.changeUsername">Change Username</label>
+                        <input type="text" class="form-control" id="settings-username" placeholder="Enter new username">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" data-i18n="settings.changePassword">Change Password</label>
+                        <input type="password" class="form-control" id="settings-password" placeholder="Enter new password">
+                    </div>
+                    <button class="btn-primary" onclick="saveUserSettings()">
+                        <i class="fas fa-save me-2"></i><span data-i18n="settings.saveUser">Save User Settings</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== FOOTER ==================== -->
+        <footer>
+            <div class="container">
+                <p>&copy; 2026 HISHYAR SALIH AHMED CO. -  FOR GENERAL TRADING CARS</p>
+                <p style="font-size: 0.9rem;" data-i18n="footer.copyright">All Rights Reserved</p>
+                
+            </div>
+        </footer>
+    </div>
+
+    <!-- ==================== FLOATING ACTION BUTTON ==================== -->
+    <div class="fab" id="fab" onclick="navigateTo('receipt')" style="display: none;">
+        <i class="fas fa-plus"></i>
+    </div>
+
+    <!-- ==================== TOAST CONTAINER ==================== -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ==================== LOADING OVERLAY ==================== -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- ==================== CONFIRMATION MODAL ==================== -->
+    <div class="modal fade" id="confirm-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="confirm-message">
+                    Are you sure you want to perform this action?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-danger" id="confirm-btn">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ==================== MAIN JAVASCRIPT ==================== -->
+    <script>
+        // ==================== DATABASE CONFIGURATION ====================
+        const DB_NAME = 'ReceiptManagementDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'receipts';
+        const SETTINGS_STORE = 'settings';
+
+        let db;
+        let currentReceiptId = null;
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let allReceipts = [];
+        let filteredReceipts = [];
+        let charts = {};
+        let currentLanguage = 'en';
+        
+        // Firebase Configuration (Replace with your Firebase config)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        let firebaseApp = null;
+        let firestore = null;
+        let useFirebase = false;
+
+        // ==================== TRANSLATIONS ====================
+        const translations = {
+            en: {
+                // Navigation
+                'nav.dashboard': 'Dashboard',
+                'nav.newReceipt': 'New Receipt',
+                'nav.database': 'Database',
+                'nav.search': 'Search',
+                'nav.reports': 'Reports',
+                'nav.settings': 'Settings',
+                'nav.logout': 'Logout',
+                
+                // Login
+                'login.title': 'HISHYAR SALIH AHMED CO.',
+                'login.subtitle': 'Receipt Management System',
+                'login.username': 'Username',
+                'login.password': 'Password',
+                'login.rememberMe': 'Remember Me',
+                'login.loginBtn': 'Login',
+                'login.forgotPassword': 'Forgot Password?',
+                
+                // Dashboard
+                'dashboard.title': 'Dashboard',
+                'stat.totalReceipts': 'Total Receipts',
+                'stat.todayReceipts': 'Today\'s Receipts',
+                'stat.totalCustoms': 'Total Customs',
+                'stat.totalReceived': 'Total Received',
+                'chart.monthlyIncome': 'Monthly Income',
+                'chart.receiptDistribution': 'Receipt Distribution',
+                'recentReceipts': 'Recent Receipts',
+                
+                // Receipt Form
+                'receipt.title': 'Receipt Entry',
+                'receipt.number': 'Receipt Number',
+                'receipt.date': 'Date',
+                'receipt.fullName': 'Full Name',
+                'receipt.carName': 'Car Name',
+                'receipt.category': 'Category',
+                'receipt.color': 'Color',
+                'receipt.vin': 'VIN Number',
+                'receipt.model': 'Model',
+                'receipt.financial': 'Financial Details',
+                'receipt.customs': 'Customs Amount ($)',
+                'receipt.expenses': 'Expenses ($)',
+                'receipt.received': 'Received Amount ($)',
+                'receipt.total': 'Total Amount ($)',
+                'btn.save': 'Save',
+                'btn.update': 'Update',
+                'btn.delete': 'Delete',
+                'btn.reset': 'Reset',
+                'btn.print': 'Print',
+                'btn.preview': 'Preview',
+                
+                // Database
+                'database.title': 'Database',
+                'database.search': 'Search...',
+                'database.allCategories': 'All Categories',
+                'database.export': 'Export CSV',
+                
+                // Search
+                'search.title': 'Search',
+                'search.by': 'Search By',
+                'search.value': 'Search Value',
+                'search.btn': 'Search',
+                'search.noResults': 'No results found',
+                
+                // Receipt Details
+                'receiptDetails.back': 'Back to Database',
+                'receiptDetails.customer': 'Customer Details',
+                'receiptDetails.vehicle': 'Vehicle Details',
+                'receiptDetails.financial': 'Financial Details',
+                
+                // Reports
+                'reports.title': 'Reports',
+                'reports.type': 'Report Type',
+                'reports.daily': 'Daily Report',
+                'reports.weekly': 'Weekly Report',
+                'reports.monthly': 'Monthly Report',
+                'reports.yearly': 'Yearly Report',
+                'reports.exportPdf': 'Export PDF',
+                'reports.exportExcel': 'Export Excel',
+                'reports.incomeExpenses': 'Income vs Expenses',
+                'reports.trends': 'Receipt Trends',
+                'reports.summary': 'Report Summary',
+                
+                // Settings
+                'settings.title': 'Settings',
+                'settings.company': 'Company Information',
+                'settings.companyName': 'Company Name',
+                'settings.logoUrl': 'Logo URL',
+                'settings.save': 'Save Settings',
+                'settings.theme': 'Theme',
+                'settings.darkMode': 'Dark Mode',
+                'settings.lightMode': 'Light Mode',
+                'settings.language': 'Language',
+                'settings.english': 'English',
+                'settings.arabic': 'العربية',
+                'settings.data': 'Data Management',
+                'settings.exportJson': 'Export JSON',
+                'settings.importJson': 'Import JSON',
+                'settings.backup': 'Backup Data',
+                'settings.clear': 'Clear Database',
+                'settings.user': 'User Settings',
+                'settings.changeUsername': 'Change Username',
+                'settings.changePassword': 'Change Password',
+                'settings.saveUser': 'Save User Settings',
+                
+                // Categories
+                'category.sedan': 'Sedan',
+                'category.suv': 'SUV',
+                'category.truck': 'Truck',
+                'category.van': 'Van',
+                'category.sports': 'Sports',
+                'category.luxury': 'Luxury',
+                'category.other': 'Other',
+                
+                // Messages
+                'msg.loginSuccess': 'Login successful!',
+                'msg.logoutSuccess': 'Logged out successfully',
+                'msg.saved': 'Receipt saved successfully!',
+                'msg.updated': 'Receipt updated successfully!',
+                'msg.deleted': 'Receipt deleted successfully!',
+                'msg.fillRequired': 'Please fill in all required fields',
+                'msg.noReceipt': 'No receipt selected',
+                'msg.exported': 'CSV exported successfully!',
+                
+                // Footer
+                'footer.copyright': 'All Rights Reserved'
+            },
+            ar: {
+                // Navigation
+                'nav.dashboard': 'لوحة التحكم',
+                'nav.newReceipt': 'إيصال جديد',
+                'nav.database': 'قاعدة البيانات',
+                'nav.search': 'بحث',
+                'nav.reports': 'التقارير',
+                'nav.settings': 'الإعدادات',
+                'nav.logout': 'تسجيل الخروج',
+                
+                // Login
+                'login.title': 'شركة حشيار صالح أحمد',
+                'login.subtitle': 'نظام إدارة الإيصالات',
+                'login.username': 'اسم المستخدم',
+                'login.password': 'كلمة المرور',
+                'login.rememberMe': 'تذكرني',
+                'login.loginBtn': 'تسجيل الدخول',
+                'login.forgotPassword': 'نسيت كلمة المرور؟',
+                
+                // Dashboard
+                'dashboard.title': 'لوحة التحكم',
+                'stat.totalReceipts': 'إجمالي الإيصالات',
+                'stat.todayReceipts': 'إيصالات اليوم',
+                'stat.totalCustoms': 'إجمالي الجمارك',
+                'stat.totalReceived': 'إجمالي المستلم',
+                'chart.monthlyIncome': 'الدخل الشهري',
+                'chart.receiptDistribution': 'توزيع الإيصالات',
+                'recentReceipts': 'الإيصالات الأخيرة',
+                
+                // Receipt Form
+                'receipt.title': 'إدخال الإيصال',
+                'receipt.number': 'رقم الإيصال',
+                'receipt.date': 'التاريخ',
+                'receipt.fullName': 'الاسم الكامل',
+                'receipt.carName': 'اسم السيارة',
+                'receipt.category': 'الفئة',
+                'receipt.color': 'اللون',
+                'receipt.vin': 'رقم الهيكل',
+                'receipt.model': 'الموديل',
+                'receipt.financial': 'التفاصيل المالية',
+                'receipt.customs': 'مبلغ الجمارك ($)',
+                'receipt.expenses': 'المصاريف ($)',
+                'receipt.received': 'المبلغ المستلم ($)',
+                'receipt.total': 'المبلغ الإجمالي ($)',
+                'btn.save': 'حفظ',
+                'btn.update': 'تحديث',
+                'btn.delete': 'حذف',
+                'btn.reset': 'إعادة تعيين',
+                'btn.print': 'طباعة',
+                'btn.preview': 'معاينة',
+                
+                // Database
+                'database.title': 'قاعدة البيانات',
+                'database.search': 'بحث...',
+                'database.allCategories': 'جميع الفئات',
+                'database.export': 'تصدير CSV',
+                
+                // Search
+                'search.title': 'بحث',
+                'search.by': 'البحث بواسطة',
+                'search.value': 'قيمة البحث',
+                'search.btn': 'بحث',
+                'search.noResults': 'لا توجد نتائج',
+                
+                // Receipt Details
+                'receiptDetails.back': 'العودة إلى قاعدة البيانات',
+                'receiptDetails.customer': 'تفاصيل العميل',
+                'receiptDetails.vehicle': 'تفاصيل المركبة',
+                'receiptDetails.financial': 'التفاصيل المالية',
+                
+                // Reports
+                'reports.title': 'التقارير',
+                'reports.type': 'نوع التقرير',
+                'reports.daily': 'تقرير يومي',
+                'reports.weekly': 'تقرير أسبوعي',
+                'reports.monthly': 'تقرير شهري',
+                'reports.yearly': 'تقرير سنوي',
+                'reports.exportPdf': 'تصدير PDF',
+                'reports.exportExcel': 'تصدير Excel',
+                'reports.incomeExpenses': 'الدخل مقابل المصاريف',
+                'reports.trends': 'اتجاهات الإيصالات',
+                'reports.summary': 'ملخص التقرير',
+                
+                // Settings
+                'settings.title': 'الإعدادات',
+                'settings.company': 'معلومات الشركة',
+                'settings.companyName': 'اسم الشركة',
+                'settings.logoUrl': 'رابط الشعار',
+                'settings.save': 'حفظ الإعدادات',
+                'settings.theme': 'المظهر',
+                'settings.darkMode': 'الوضع الداكن',
+                'settings.lightMode': 'الوضع الفاتح',
+                'settings.language': 'اللغة',
+                'settings.english': 'English',
+                'settings.arabic': 'العربية',
+                'settings.data': 'إدارة البيانات',
+                'settings.exportJson': 'تصدير JSON',
+                'settings.importJson': 'استيراد JSON',
+                'settings.backup': 'نسخ احتياطي',
+                'settings.clear': 'مسح قاعدة البيانات',
+                'settings.user': 'إعدادات المستخدم',
+                'settings.changeUsername': 'تغيير اسم المستخدم',
+                'settings.changePassword': 'تغيير كلمة المرور',
+                'settings.saveUser': 'حفظ إعدادات المستخدم',
+                
+                // Categories
+                'category.sedan': 'سيدان',
+                'category.suv': 'SUV',
+                'category.truck': 'شاحنة',
+                'category.van': 'فان',
+                'category.sports': 'رياضية',
+                'category.luxury': 'فاخرة',
+                'category.other': 'أخرى',
+                
+                // Messages
+                'msg.loginSuccess': 'تم تسجيل الدخول بنجاح!',
+                'msg.logoutSuccess': 'تم تسجيل الخروج بنجاح',
+                'msg.saved': 'تم حفظ الإيصال بنجاح!',
+                'msg.updated': 'تم تحديث الإيصال بنجاح!',
+                'msg.deleted': 'تم حذف الإيصال بنجاح!',
+                'msg.fillRequired': 'يرجى ملء جميع الحقول المطلوبة',
+                'msg.noReceipt': 'لم يتم تحديد إيصال',
+                'msg.exported': 'تم تصدير CSV بنجاح!',
+                
+                // Footer
+                'footer.copyright': 'جميع الحقوق محفوظة'
+            }
+        };
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            initializeFirebase();
+            initializeDB().then(() => {
+                checkLoginStatus();
+                setDefaultDate();
+                setupEventListeners();
+                loadLanguagePreference();
+            }).catch(error => {
+                console.error('Database initialization failed:', error);
+                showToast('Database initialization failed. Please refresh the page.', 'error');
+            });
+        });
+
+        // ==================== FIREBASE INITIALIZATION ====================
+        function initializeFirebase() {
+            try {
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                firestore = firebase.firestore();
+                console.log('Firebase initialized successfully');
+            } catch (error) {
+                console.log('Firebase not configured, using local storage only');
+                useFirebase = false;
+            }
+        }
+
+        function toggleFirebaseStorage() {
+            useFirebase = !useFirebase;
+            if (useFirebase && !firestore) {
+                initializeFirebase();
+            }
+            const status = useFirebase ? 'enabled' : 'disabled';
+            showToast(`Firebase storage ${status}. Changes will sync ${useFirebase ? 'online' : 'locally only'}.`, 'info');
+            localStorage.setItem('useFirebase', useFirebase.toString());
+        }
+
+        // ==================== PARTICLES ANIMATION ====================
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // ==================== INDEXEDDB SETUP ====================
+        function initializeDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onerror = function(event) {
+                    console.error('Database error:', event.target.error);
+                    showToast('Database error: ' + event.target.error, 'error');
+                    reject(event.target.error);
+                };
+
+                request.onupgradeneeded = function(event) {
+                    db = event.target.result;
+
+                    // Receipts Store
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        const objectStore = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                        objectStore.createIndex('receiptNumber', 'receiptNumber', { unique: true });
+                        objectStore.createIndex('customerName', 'customerName', { unique: false });
+                        objectStore.createIndex('date', 'date', { unique: false });
+                        objectStore.createIndex('vin', 'vin', { unique: false });
+                    }
+
+                    // Settings Store
+                    if (!db.objectStoreNames.contains(SETTINGS_STORE)) {
+                        db.createObjectStore(SETTINGS_STORE, { keyPath: 'key' });
+                    }
+                };
+
+                request.onsuccess = function(event) {
+                    db = event.target.result;
+                    loadSettings();
+                    resolve(db);
+                };
+            });
+        }
+
+        // ==================== DATABASE OPERATIONS ====================
+        function addReceipt(receipt) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const objectStore = transaction.objectStore(STORE_NAME);
+                const request = objectStore.add(receipt);
+
+                transaction.oncomplete = function() {
+                    resolve(request.result);
+                };
+
+                transaction.onerror = function(event) {
+                    console.error('Error adding receipt:', event.target.error);
+                    reject(event.target.error);
+                };
+
+                request.onerror = function(event) {
+                    console.error('Error adding receipt:', event.target.error);
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        function updateReceiptDB(receipt) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const objectStore = transaction.objectStore(STORE_NAME);
+                const request = objectStore.put(receipt);
+
+                transaction.oncomplete = function() {
+                    resolve(request.result);
+                };
+
+                transaction.onerror = function(event) {
+                    console.error('Error updating receipt:', event.target.error);
+                    reject(event.target.error);
+                };
+
+                request.onerror = function(event) {
+                    console.error('Error updating receipt:', event.target.error);
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        function deleteReceiptDB(id) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const objectStore = transaction.objectStore(STORE_NAME);
+                const request = objectStore.delete(id);
+
+                transaction.oncomplete = function() {
+                    resolve();
+                };
+
+                transaction.onerror = function(event) {
+                    console.error('Error deleting receipt:', event.target.error);
+                    reject(event.target.error);
+                };
+
+                request.onerror = function(event) {
+                    console.error('Error deleting receipt:', event.target.error);
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        function getAllReceipts() {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const objectStore = transaction.objectStore(STORE_NAME);
+                const request = objectStore.getAll();
+
+                request.onsuccess = function(event) {
+                    resolve(event.target.result);
+                };
+
+                request.onerror = function(event) {
+                    console.error('Error getting receipts:', event.target.error);
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        function getReceiptById(id) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const objectStore = transaction.objectStore(STORE_NAME);
+                const request = objectStore.get(id);
+
+                request.onsuccess = function(event) {
+                    resolve(event.target.result);
+                };
+
+                request.onerror = function(event) {
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        // ==================== SETTINGS OPERATIONS ====================
+        function saveSetting(key, value) {
+            const transaction = db.transaction([SETTINGS_STORE], 'readwrite');
+            const objectStore = transaction.objectStore(SETTINGS_STORE);
+            objectStore.put({ key: key, value: value });
+        }
+
+        function getSetting(key) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([SETTINGS_STORE], 'readonly');
+                const objectStore = transaction.objectStore(SETTINGS_STORE);
+                const request = objectStore.get(key);
+
+                request.onsuccess = function(event) {
+                    resolve(event.target.result ? event.target.result.value : null);
+                };
+
+                request.onerror = function(event) {
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        async function loadSettings() {
+            const theme = await getSetting('theme');
+            if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-toggle').classList.remove('active');
+            }
+
+            const companyName = await getSetting('companyName');
+            if (companyName) {
+                document.getElementById('settings-company-name').value = companyName;
+            }
+        }
+
+        // ==================== LANGUAGE FUNCTIONS ====================
+        function loadLanguagePreference() {
+            const savedLanguage = localStorage.getItem('language') || 'en';
+            currentLanguage = savedLanguage;
+            applyLanguage(currentLanguage);
+        }
+
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'ar' : 'en';
+            localStorage.setItem('language', currentLanguage);
+            applyLanguage(currentLanguage);
+            showToast(currentLanguage === 'ar' ? 'تم تغيير اللغة إلى العربية' : 'Language changed to English', 'success');
+        }
+
+        function applyLanguage(lang) {
+            // Set document direction
+            document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+            document.documentElement.setAttribute('lang', lang);
+            document.body.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+
+            // Update language toggle
+            const langToggle = document.getElementById('language-toggle');
+            if (langToggle) {
+                if (lang === 'ar') {
+                    langToggle.classList.add('active');
+                } else {
+                    langToggle.classList.remove('active');
+                }
+            }
+
+            // Update all elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                const translation = translations[lang][key];
+                if (translation) {
+                    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                        element.placeholder = translation;
+                    } else {
+                        element.textContent = translation;
+                    }
+                }
+            });
+
+            // Update select options
+            document.querySelectorAll('select option[data-i18n]').forEach(option => {
+                const key = option.getAttribute('data-i18n');
+                const translation = translations[lang][key];
+                if (translation) {
+                    option.textContent = translation;
+                }
+            });
+        }
+
+        // ==================== AUTHENTICATION ====================
+        function checkLoginStatus() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            if (isLoggedIn === 'true') {
+                showMainApp();
+                // Auto-load dashboard data when user is already logged in
+                setTimeout(() => {
+                    if (document.getElementById('dashboard-section').classList.contains('active')) {
+                        loadDashboard();
+                    }
+                }, 100);
+            }
+        }
+
+        function login(username, password) {
+            // Secure authentication with hardcoded admin credentials
+            const ADMIN_USERNAME = 'jumahishyar';
+            const ADMIN_PASSWORD = 'Juma2001';
+            
+            // Input validation
+            if (!username || !password) {
+                showToast(currentLanguage === 'ar' ? 'يرجى إدخال اسم المستخدم وكلمة المرور' : 'Please enter username and password', 'error');
+                return;
+            }
+            
+            // Trim whitespace
+            username = username.trim();
+            password = password.trim();
+            
+            // Validate credentials
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('username', username);
+                localStorage.setItem('loginTime', new Date().toISOString());
+                showMainApp();
+                // Load dashboard data after successful login
+                setTimeout(() => loadDashboard(), 100);
+                showToast(currentLanguage === 'ar' ? 'تم تسجيل الدخول بنجاح!' : 'Login successful!', 'success');
+            } else {
+                // Add delay to prevent brute force attacks
+                const loginAttempts = parseInt(localStorage.getItem('loginAttempts') || '0');
+                localStorage.setItem('loginAttempts', (loginAttempts + 1).toString());
+                
+                if (loginAttempts >= 5) {
+                    showToast(currentLanguage === 'ar' ? 'تم تجاوز عدد المحاولات المسموح بها. حاول مرة أخرى بعد 5 دقائق.' : 'Too many failed attempts. Please try again in 5 minutes.', 'error');
+                    // Disable login button temporarily
+                    const loginBtn = document.querySelector('#login-section .btn-primary');
+                    loginBtn.disabled = true;
+                    setTimeout(() => {
+                        loginBtn.disabled = false;
+                        localStorage.setItem('loginAttempts', '0');
+                    }, 300000); // 5 minutes
+                } else {
+                    showToast(currentLanguage === 'ar' ? 'اسم المستخدم أو كلمة المرور غير صحيحة' : 'Invalid username or password', 'error');
+                }
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            document.getElementById('main-app').style.display = 'none';
+            document.getElementById('login-section').style.display = 'flex';
+            document.getElementById('fab').style.display = 'none';
+            document.getElementById('login-form').reset();
+            showToast('Logged out successfully', 'info');
+        }
+
+        function showMainApp() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+            document.getElementById('fab').style.display = 'flex';
+            navigateTo('dashboard');
+            generateReceiptNumber();
+        }
+
+        // ==================== NAVIGATION ====================
+        function navigateTo(page) {
+            // Hide all sections
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show target section
+            const targetSection = document.getElementById(page + '-section');
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            // Update nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.page === page) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Page-specific actions
+            switch(page) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'database':
+                    loadDatabase();
+                    break;
+                case 'receipt':
+                    generateReceiptNumber();
+                    break;
+                case 'reports':
+                    generateReport();
+                    break;
+            }
+
+            // Hide FAB on certain pages
+            const fab = document.getElementById('fab');
+            if (page === 'receipt' || page === 'login') {
+                fab.style.display = 'none';
+            } else {
+                fab.style.display = 'flex';
+            }
+        }
+
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('active');
+        }
+
+        // ==================== RECEIPT OPERATIONS ====================
+        function generateReceiptNumber() {
+            getAllReceipts().then(receipts => {
+                const maxNumber = receipts.length > 0 
+                    ? Math.max(...receipts.map(r => parseInt(r.receiptNumber.replace(/\D/g, '')) || 0))
+                    : 0;
+                const nextNumber = (maxNumber + 1).toString().padStart(6, '0');
+                document.getElementById('receipt-number').value = 'RCP-' + nextNumber;
+            });
+        }
+
+        function setDefaultDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('receipt-date').value = today;
+            document.getElementById('report-date').value = today;
+        }
+
+        function calculateTotal() {
+            const customs = parseFloat(document.getElementById('customs-amount').value) || 0;
+            const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+            const received = parseFloat(document.getElementById('received-amount').value) || 0;
+            const total = customs + expenses + received;
+            document.getElementById('total-amount').value = total.toFixed(2);
+        }
+
+        function saveReceipt() {
+            const receipt = {
+                receiptNumber: document.getElementById('receipt-number').value,
+                customerName: document.getElementById('customer-name').value,
+                carName: document.getElementById('car-name').value,
+                category: document.getElementById('car-category').value,
+                color: document.getElementById('car-color').value,
+                vin: document.getElementById('vin-number').value,
+                model: document.getElementById('car-model').value,
+                date: document.getElementById('receipt-date').value,
+                customsAmount: parseFloat(document.getElementById('customs-amount').value) || 0,
+                expenses: parseFloat(document.getElementById('expenses').value) || 0,
+                receivedAmount: parseFloat(document.getElementById('received-amount').value) || 0,
+                totalAmount: parseFloat(document.getElementById('total-amount').value) || 0,
+                createdAt: new Date().toISOString()
+            };
+
+            // Validation
+            if (!receipt.receiptNumber || !receipt.customerName || !receipt.carName || !receipt.category || !receipt.date) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+
+            showLoading();
+
+            addReceipt(receipt).then(id => {
+                hideLoading();
+                currentReceiptId = id;
+                showToast('Receipt saved successfully!', 'success');
+                generateReceiptNumber();
+                refreshAllData();
+            }).catch(error => {
+                hideLoading();
+                showToast('Error saving receipt: ' + error, 'error');
+            });
+        }
+
+        function updateReceipt() {
+            if (!currentReceiptId) {
+                showToast('No receipt selected for update', 'warning');
+                return;
+            }
+
+            const receipt = {
+                id: currentReceiptId,
+                receiptNumber: document.getElementById('receipt-number').value,
+                customerName: document.getElementById('customer-name').value,
+                carName: document.getElementById('car-name').value,
+                category: document.getElementById('car-category').value,
+                color: document.getElementById('car-color').value,
+                vin: document.getElementById('vin-number').value,
+                model: document.getElementById('car-model').value,
+                date: document.getElementById('receipt-date').value,
+                customsAmount: parseFloat(document.getElementById('customs-amount').value) || 0,
+                expenses: parseFloat(document.getElementById('expenses').value) || 0,
+                receivedAmount: parseFloat(document.getElementById('received-amount').value) || 0,
+                totalAmount: parseFloat(document.getElementById('total-amount').value) || 0,
+                updatedAt: new Date().toISOString()
+            };
+
+            showLoading();
+
+            updateReceiptDB(receipt).then(() => {
+                hideLoading();
+                showToast('Receipt updated successfully!', 'success');
+                refreshAllData();
+            }).catch(error => {
+                hideLoading();
+                showToast('Error updating receipt: ' + error, 'error');
+            });
+        }
+
+        function deleteReceipt() {
+            if (!currentReceiptId) {
+                showToast('No receipt selected for deletion', 'warning');
+                return;
+            }
+
+            showConfirmModal('Are you sure you want to delete this receipt?', () => {
+                showLoading();
+                deleteReceiptDB(currentReceiptId).then(() => {
+                    hideLoading();
+                    currentReceiptId = null;
+                    resetReceiptForm();
+                    showToast('Receipt deleted successfully!', 'success');
+                    refreshAllData();
+                }).catch(error => {
+                    hideLoading();
+                    showToast('Error deleting receipt: ' + error, 'error');
+                });
+            });
+        }
+
+        function resetReceiptForm() {
+            document.getElementById('receipt-form').reset();
+            currentReceiptId = null;
+            setDefaultDate();
+            generateReceiptNumber();
+        }
+
+        function loadReceiptForEdit(id) {
+            getReceiptById(id).then(receipt => {
+                if (receipt) {
+                    currentReceiptId = receipt.id;
+                    document.getElementById('receipt-number').value = receipt.receiptNumber;
+                    document.getElementById('customer-name').value = receipt.customerName;
+                    document.getElementById('car-name').value = receipt.carName;
+                    document.getElementById('car-category').value = receipt.category;
+                    document.getElementById('car-color').value = receipt.color || '';
+                    document.getElementById('vin-number').value = receipt.vin || '';
+                    document.getElementById('car-model').value = receipt.model || '';
+                    document.getElementById('receipt-date').value = receipt.date;
+                    document.getElementById('customs-amount').value = receipt.customsAmount;
+                    document.getElementById('expenses').value = receipt.expenses;
+                    document.getElementById('received-amount').value = receipt.receivedAmount;
+                    document.getElementById('total-amount').value = receipt.totalAmount;
+                    navigateTo('receipt');
+                }
+            });
+        }
+
+        // ==================== DASHBOARD ====================
+        async function loadDashboard() {
+            showLoading();
+            const receipts = await getAllReceipts();
+            hideLoading();
+
+            // Statistics
+            const totalReceipts = receipts.length;
+            const today = new Date().toISOString().split('T')[0];
+            const todayReceipts = receipts.filter(r => r.date === today).length;
+            const totalCustoms = receipts.reduce((sum, r) => sum + (r.customsAmount || 0), 0);
+            const totalReceived = receipts.reduce((sum, r) => sum + (r.receivedAmount || 0), 0);
+
+            document.getElementById('stat-total-receipts').textContent = totalReceipts;
+            document.getElementById('stat-today-receipts').textContent = todayReceipts;
+            document.getElementById('stat-total-customs').textContent = '$' + totalCustoms.toFixed(2);
+            document.getElementById('stat-total-received').textContent = '$' + totalReceived.toFixed(2);
+
+            // Recent Receipts
+            const recentReceipts = receipts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+            const recentBody = document.getElementById('recent-receipts-body');
+            recentBody.innerHTML = '';
+
+            recentReceipts.forEach(receipt => {
+                recentBody.innerHTML += `
+                    <tr>
+                        <td>${receipt.receiptNumber}</td>
+                        <td>${receipt.customerName}</td>
+                        <td>${receipt.carName}</td>
+                        <td>${receipt.date}</td>
+                        <td>$${receipt.totalAmount.toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="viewReceiptDetails(${receipt.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="loadReceiptForEdit(${receipt.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // Charts
+            loadDashboardCharts(receipts);
+        }
+
+        function loadDashboardCharts(receipts) {
+            // Monthly Income Chart
+            const monthlyData = {};
+            receipts.forEach(r => {
+                const month = r.date.substring(0, 7);
+                if (!monthlyData[month]) monthlyData[month] = 0;
+                monthlyData[month] += r.totalAmount;
+            });
+
+            const sortedMonths = Object.keys(monthlyData).sort();
+            const monthlyIncomeChart = document.getElementById('monthly-income-chart');
+            
+            if (charts.monthlyIncome) charts.monthlyIncome.destroy();
+            
+            charts.monthlyIncome = new Chart(monthlyIncomeChart, {
+                type: 'line',
+                data: {
+                    labels: sortedMonths,
+                    datasets: [{
+                        label: 'Monthly Income',
+                        data: sortedMonths.map(m => monthlyData[m]),
+                        borderColor: '#64ffda',
+                        backgroundColor: 'rgba(100, 255, 218, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#ccd6f6' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#ccd6f6' },
+                            grid: { color: 'rgba(204, 214, 246, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#ccd6f6' },
+                            grid: { color: 'rgba(204, 214, 246, 0.1)' }
+                        }
+                    }
+                }
+            });
+
+            // Receipt Distribution Chart
+            const categoryData = {};
+            receipts.forEach(r => {
+                if (!categoryData[r.category]) categoryData[r.category] = 0;
+                categoryData[r.category]++;
+            });
+
+            const distributionChart = document.getElementById('receipt-distribution-chart');
+            
+            if (charts.distribution) charts.distribution.destroy();
+            
+            charts.distribution = new Chart(distributionChart, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        data: Object.values(categoryData),
+                        backgroundColor: [
+                            '#64ffda',
+                            '#233554',
+                            '#112240',
+                            '#0a192f',
+                            '#4fd1b8',
+                            '#38b2ac',
+                            '#319795'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#ccd6f6' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ==================== DATABASE ====================
+        async function loadDatabase() {
+            showLoading();
+            allReceipts = await getAllReceipts();
+            filteredReceipts = [...allReceipts];
+            hideLoading();
+            renderDatabaseTable();
+        }
+
+        function renderDatabaseTable() {
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = filteredReceipts.slice(start, end);
+
+            const tbody = document.getElementById('database-body');
+            tbody.innerHTML = '';
+
+            pageData.forEach(receipt => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${receipt.receiptNumber}</td>
+                        <td>${receipt.customerName}</td>
+                        <td>${receipt.carName}</td>
+                        <td>${receipt.category}</td>
+                        <td>${receipt.date}</td>
+                        <td>$${receipt.totalAmount.toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="viewReceiptDetails(${receipt.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="loadReceiptForEdit(${receipt.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="confirmDeleteReceipt(${receipt.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredReceipts.length / itemsPerPage);
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                pagination.innerHTML += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="goToPage(${i}); return false;">${i}</a>
+                    </li>
+                `;
+            }
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            renderDatabaseTable();
+        }
+
+        function filterDatabase() {
+            const search = document.getElementById('database-search').value.toLowerCase();
+            const filter = document.getElementById('database-filter').value;
+            const sort = document.getElementById('database-sort').value;
+
+            filteredReceipts = allReceipts.filter(receipt => {
+                const matchesSearch = 
+                    receipt.receiptNumber.toLowerCase().includes(search) ||
+                    receipt.customerName.toLowerCase().includes(search) ||
+                    receipt.carName.toLowerCase().includes(search) ||
+                    receipt.vin?.toLowerCase().includes(search);
+                
+                const matchesFilter = !filter || receipt.category === filter;
+                
+                return matchesSearch && matchesFilter;
+            });
+
+            // Sort
+            switch(sort) {
+                case 'date-desc':
+                    filteredReceipts.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    break;
+                case 'date-asc':
+                    filteredReceipts.sort((a, b) => new Date(a.date) - new Date(b.date));
+                    break;
+                case 'amount-desc':
+                    filteredReceipts.sort((a, b) => b.totalAmount - a.totalAmount);
+                    break;
+                case 'amount-asc':
+                    filteredReceipts.sort((a, b) => a.totalAmount - b.totalAmount);
+                    break;
+                case 'name-asc':
+                    filteredReceipts.sort((a, b) => a.customerName.localeCompare(b.customerName));
+                    break;
+                case 'name-desc':
+                    filteredReceipts.sort((a, b) => b.customerName.localeCompare(a.customerName));
+                    break;
+            }
+
+            currentPage = 1;
+            renderDatabaseTable();
+        }
+
+        function confirmDeleteReceipt(id) {
+            showConfirmModal('Are you sure you want to delete this receipt?', () => {
+                showLoading();
+                deleteReceiptDB(id).then(() => {
+                    hideLoading();
+                    loadDatabase();
+                    refreshAllData();
+                    showToast('Receipt deleted successfully!', 'success');
+                }).catch(error => {
+                    hideLoading();
+                    showToast('Error deleting receipt: ' + error, 'error');
+                });
+            });
+        }
+
+        function exportToCSV() {
+            const headers = ['Receipt Number', 'Customer Name', 'Car Name', 'Category', 'Color', 'VIN', 'Model', 'Date', 'Customs Amount', 'Expenses', 'Received Amount', 'Total Amount'];
+            const rows = filteredReceipts.map(r => [
+                r.receiptNumber,
+                r.customerName,
+                r.carName,
+                r.category,
+                r.color || '',
+                r.vin || '',
+                r.model || '',
+                r.date,
+                r.customsAmount,
+                r.expenses,
+                r.receivedAmount,
+                r.totalAmount
+            ]);
+
+            let csv = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.join(',') + '\n';
+            });
+
+            downloadFile(csv, 'receipts.csv', 'text/csv');
+            showToast('CSV exported successfully!', 'success');
+        }
+
+        // ==================== SEARCH ====================
+        async function performSearch() {
+            const searchType = document.getElementById('search-type').value;
+            const searchValue = document.getElementById('search-value').value.toLowerCase();
+
+            if (!searchValue) {
+                showToast('Please enter a search value', 'warning');
+                return;
+            }
+
+            showLoading();
+            const receipts = await getAllReceipts();
+            hideLoading();
+
+            const results = receipts.filter(receipt => {
+                switch(searchType) {
+                    case 'receiptNumber':
+                        return receipt.receiptNumber.toLowerCase().includes(searchValue);
+                    case 'vin':
+                        return receipt.vin?.toLowerCase().includes(searchValue);
+                    case 'customerName':
+                        return receipt.customerName.toLowerCase().includes(searchValue);
+                    case 'carName':
+                        return receipt.carName.toLowerCase().includes(searchValue);
+                    case 'date':
+                        return receipt.date.includes(searchValue);
+                    case 'category':
+                        return receipt.category.toLowerCase().includes(searchValue);
+                    default:
+                        return false;
+                }
+            });
+
+            displaySearchResults(results);
+        }
+
+        function displaySearchResults(results) {
+            const container = document.getElementById('search-results');
+            container.innerHTML = '';
+
+            if (results.length === 0) {
+                container.innerHTML = '<div class="glass" style="padding: 20px; text-align: center;">' + (currentLanguage === 'ar' ? translations.ar['search.noResults'] : translations.en['search.noResults']) + '</div>';
+                return;
+            }
+
+            results.forEach(receipt => {
+                container.innerHTML += `
+                    <div class="search-result-card glass">
+                        <h5>${receipt.receiptNumber}</h5>
+                        <div class="detail-row">
+                            <span>Customer:</span>
+                            <span>${receipt.customerName}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Car:</span>
+                            <span>${receipt.carName}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Category:</span>
+                            <span>${receipt.category}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Date:</span>
+                            <span>${receipt.date}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>Total:</span>
+                            <span>$${receipt.totalAmount.toFixed(2)}</span>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-primary" onclick="viewReceiptDetails(${receipt.id})">
+                                <i class="fas fa-eye me-1"></i>View Details
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="loadReceiptForEdit(${receipt.id})">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // ==================== RECEIPT DETAILS ====================
+        async function viewReceiptDetails(id) {
+            const receipt = await getReceiptById(id);
+            if (!receipt) return;
+
+            document.getElementById('preview-receipt-number').textContent = 'Receipt #' + receipt.receiptNumber;
+            document.getElementById('preview-customer-name').textContent = receipt.customerName;
+            document.getElementById('preview-date').textContent = receipt.date;
+            document.getElementById('preview-car-name').textContent = receipt.carName;
+            document.getElementById('preview-category').textContent = receipt.category;
+            document.getElementById('preview-color').textContent = receipt.color || '-';
+            document.getElementById('preview-vin').textContent = receipt.vin || '-';
+            document.getElementById('preview-model').textContent = receipt.model || '-';
+            document.getElementById('preview-customs').textContent = '$' + receipt.customsAmount.toFixed(2);
+            document.getElementById('preview-expenses').textContent = '$' + receipt.expenses.toFixed(2);
+            document.getElementById('preview-received').textContent = '$' + receipt.receivedAmount.toFixed(2);
+            document.getElementById('preview-total').textContent = '$' + receipt.totalAmount.toFixed(2);
+
+            // Generate QR Code
+            const qrcodeContainer = document.getElementById('qrcode');
+            qrcodeContainer.innerHTML = '';
+            new QRCode(qrcodeContainer, {
+                text: receipt.receiptNumber,
+                width: 100,
+                height: 100
+            });
+
+            // Generate Barcode
+            JsBarcode("#barcode", receipt.receiptNumber, {
+                format: "CODE128",
+                width: 2,
+                height: 50,
+                displayValue: true
+            });
+
+            navigateTo('receipt-details');
+        }
+
+        function printReceipt() {
+            const receiptNumber = document.getElementById('receipt-number').value;
+            if (!receiptNumber) {
+                showToast('Please save the receipt first', 'warning');
+                return;
+            }
+
+            // Find receipt by number
+            getAllReceipts().then(receipts => {
+                const receipt = receipts.find(r => r.receiptNumber === receiptNumber);
+                if (receipt) {
+                    viewReceiptDetails(receipt.id);
+                    setTimeout(() => window.print(), 500);
+                }
+            });
+        }
+
+        function previewReceipt() {
+            const receiptNumber = document.getElementById('receipt-number').value;
+            if (!receiptNumber) {
+                showToast('Please save the receipt first', 'warning');
+                return;
+            }
+
+            getAllReceipts().then(receipts => {
+                const receipt = receipts.find(r => r.receiptNumber === receiptNumber);
+                if (receipt) {
+                    viewReceiptDetails(receipt.id);
+                }
+            });
+        }
+
+        function downloadPDF() {
+            showToast('PDF download feature requires additional library. Use Print > Save as PDF instead.', 'info');
+        }
+
+        // ==================== REPORTS ====================
+        async function generateReport() {
+            const reportType = document.getElementById('report-type').value;
+            const reportDate = document.getElementById('report-date').value;
+
+            showLoading();
+            const receipts = await getAllReceipts();
+            hideLoading();
+
+            let filteredReceipts = receipts;
+
+            // Filter by date based on report type
+            const date = new Date(reportDate);
+            switch(reportType) {
+                case 'daily':
+                    filteredReceipts = receipts.filter(r => r.date === reportDate);
+                    break;
+                case 'weekly':
+                    const weekStart = new Date(date);
+                    weekStart.setDate(date.getDate() - date.getDay());
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 6);
+                    filteredReceipts = receipts.filter(r => {
+                        const rDate = new Date(r.date);
+                        return rDate >= weekStart && rDate <= weekEnd;
+                    });
+                    break;
+                case 'monthly':
+                    const month = reportDate.substring(0, 7);
+                    filteredReceipts = receipts.filter(r => r.date.substring(0, 7) === month);
+                    break;
+                case 'yearly':
+                    const year = reportDate.substring(0, 4);
+                    filteredReceipts = receipts.filter(r => r.date.substring(0, 4) === year);
+                    break;
+            }
+
+            // Update summary table
+            const totalReceipts = filteredReceipts.length;
+            const totalCustoms = filteredReceipts.reduce((sum, r) => sum + (r.customsAmount || 0), 0);
+            const totalExpenses = filteredReceipts.reduce((sum, r) => sum + (r.expenses || 0), 0);
+            const totalReceived = filteredReceipts.reduce((sum, r) => sum + (r.receivedAmount || 0), 0);
+            const totalAmount = filteredReceipts.reduce((sum, r) => sum + (r.totalAmount || 0), 0);
+
+            const summaryBody = document.getElementById('report-summary-body');
+            summaryBody.innerHTML = `
+                <tr><td>Total Receipts</td><td>${totalReceipts}</td></tr>
+                <tr><td>Total Customs</td><td>$${totalCustoms.toFixed(2)}</td></tr>
+                <tr><td>Total Expenses</td><td>$${totalExpenses.toFixed(2)}</td></tr>
+                <tr><td>Total Received</td><td>$${totalReceived.toFixed(2)}</td></tr>
+                <tr><td>Total Amount</td><td>$${totalAmount.toFixed(2)}</td></tr>
+            `;
+
+            // Load report charts
+            loadReportCharts(filteredReceipts);
+        }
+
+        function loadReportCharts(receipts) {
+            // Income vs Expenses Chart
+            const incomeExpensesChart = document.getElementById('income-expenses-chart');
+            
+            if (charts.incomeExpenses) charts.incomeExpenses.destroy();
+            
+            charts.incomeExpenses = new Chart(incomeExpensesChart, {
+                type: 'bar',
+                data: {
+                    labels: ['Customs', 'Expenses', 'Received'],
+                    datasets: [{
+                        label: 'Amount',
+                        data: [
+                            receipts.reduce((sum, r) => sum + (r.customsAmount || 0), 0),
+                            receipts.reduce((sum, r) => sum + (r.expenses || 0), 0),
+                            receipts.reduce((sum, r) => sum + (r.receivedAmount || 0), 0)
+                        ],
+                        backgroundColor: ['#64ffda', '#233554', '#112240']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#ccd6f6' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#ccd6f6' },
+                            grid: { color: 'rgba(204, 214, 246, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#ccd6f6' },
+                            grid: { color: 'rgba(204, 214, 246, 0.1)' }
+                        }
+                    }
+                }
+            });
+
+            // Receipt Trends Chart
+            const trendsData = {};
+            receipts.forEach(r => {
+                const date = r.date;
+                if (!trendsData[date]) trendsData[date] = 0;
+                trendsData[date] += r.totalAmount;
+            });
+
+            const sortedDates = Object.keys(trendsData).sort();
+            const trendsChart = document.getElementById('receipt-trends-chart');
+            
+            if (charts.trends) charts.trends.destroy();
+            
+            charts.trends = new Chart(trendsChart, {
+                type: 'line',
+                data: {
+                    labels: sortedDates,
+                    datasets: [{
+                        label: 'Daily Total',
+                        data: sortedDates.map(d => trendsData[d]),
+                        borderColor: '#64ffda',
+                        backgroundColor: 'rgba(100, 255, 218, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#ccd6f6' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#ccd6f6' },
+                            grid: { color: 'rgba(204, 214, 246, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#ccd6f6' },
+                            grid: { color: 'rgba(204, 214, 246, 0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportReportPDF() {
+            showToast('PDF export feature requires additional library. Use Print > Save as PDF instead.', 'info');
+        }
+
+        function exportReportExcel() {
+            showToast('Excel export feature requires additional library. Use CSV export instead.', 'info');
+        }
+
+        // ==================== SETTINGS ====================
+        function toggleTheme() {
+            const body = document.body;
+            const toggle = document.getElementById('theme-toggle');
+            
+            body.classList.toggle('light-mode');
+            toggle.classList.toggle('active');
+            
+            const theme = body.classList.contains('light-mode') ? 'light' : 'dark';
+            saveSetting('theme', theme);
+        }
+
+        function saveCompanySettings() {
+            const companyName = document.getElementById('settings-company-name').value;
+            const logoUrl = document.getElementById('settings-logo-url').value;
+            
+            saveSetting('companyName', companyName);
+            saveSetting('logoUrl', logoUrl);
+            
+            showToast('Company settings saved!', 'success');
+        }
+
+        function saveUserSettings() {
+            const username = document.getElementById('settings-username').value;
+            const password = document.getElementById('settings-password').value;
+            
+            if (username) {
+                localStorage.setItem('username', username);
+            }
+            if (password) {
+                localStorage.setItem('password', password);
+            }
+            
+            showToast('User settings saved!', 'success');
+            document.getElementById('settings-username').value = '';
+            document.getElementById('settings-password').value = '';
+        }
+
+        async function exportDataJSON() {
+            showLoading();
+            const receipts = await getAllReceipts();
+            const settings = {
+                companyName: await getSetting('companyName'),
+                logoUrl: await getSetting('logoUrl'),
+                theme: await getSetting('theme')
+            };
+            
+            const data = {
+                receipts: receipts,
+                settings: settings,
+                exportDate: new Date().toISOString()
+            };
+            
+            hideLoading();
+            downloadFile(JSON.stringify(data, null, 2), 'receipt-backup.json', 'application/json');
+            showToast('Data exported successfully!', 'success');
+        }
+
+        function importDataJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.receipts && Array.isArray(data.receipts)) {
+                        showLoading();
+                        
+                        const transaction = db.transaction([STORE_NAME], 'readwrite');
+                        const objectStore = transaction.objectStore(STORE_NAME);
+                        
+                        // Clear existing data
+                        objectStore.clear().onsuccess = function() {
+                            // Add imported data
+                            data.receipts.forEach(receipt => {
+                                objectStore.add(receipt);
+                            });
+                            
+                            transaction.oncomplete = function() {
+                                hideLoading();
+                                showToast('Data imported successfully!', 'success');
+                                refreshAllData();
+                            };
+                        };
+                    }
+                } catch (error) {
+                    hideLoading();
+                    showToast('Error importing data: Invalid JSON format', 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function backupData() {
+            exportDataJSON();
+        }
+
+        function clearDatabase() {
+            showConfirmModal('Are you sure you want to clear ALL data? This cannot be undone!', () => {
+                showLoading();
+                
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const objectStore = transaction.objectStore(STORE_NAME);
+                
+                objectStore.clear().onsuccess = function() {
+                    hideLoading();
+                    showToast('Database cleared successfully!', 'success');
+                    refreshAllData();
+                };
+                
+                transaction.onerror = function() {
+                    hideLoading();
+                    showToast('Error clearing database', 'error');
+                };
+            });
+        }
+
+        // ==================== DATA SYNCHRONIZATION ====================
+        function refreshAllData() {
+            // Refresh Dashboard if it's the active page
+            if (document.getElementById('dashboard-section').classList.contains('active')) {
+                loadDashboard();
+            }
+            
+            // Refresh Database if it's the active page
+            if (document.getElementById('database-section').classList.contains('active')) {
+                loadDatabase();
+            }
+            
+            // Refresh Reports if it's the active page
+            if (document.getElementById('reports-section').classList.contains('active')) {
+                generateReport();
+            }
+            
+            // Refresh Search results if it's the active page
+            if (document.getElementById('search-section').classList.contains('active')) {
+                const searchValue = document.getElementById('search-value').value;
+                if (searchValue) {
+                    performSearch();
+                }
+            }
+            
+            // Update receipt number for next entry
+            generateReceiptNumber();
+        }
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                ${message}
+            `;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideInRight 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function showLoading() {
+            document.getElementById('loading-overlay').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.remove('active');
+        }
+
+        function showConfirmModal(message, callback) {
+            document.getElementById('confirm-message').textContent = message;
+            const modal = new bootstrap.Modal(document.getElementById('confirm-modal'));
+            modal.show();
+
+            document.getElementById('confirm-btn').onclick = function() {
+                modal.hide();
+                callback();
+            };
+        }
+
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type: type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        function setupEventListeners() {
+            // Login form
+            document.getElementById('login-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const username = document.getElementById('login-username').value;
+                const password = document.getElementById('login-password').value;
+                login(username, password);
+            });
+
+            // Receipt form
+            document.getElementById('receipt-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveReceipt();
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    if (document.getElementById('receipt-section').classList.contains('active')) {
+                        saveReceipt();
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
