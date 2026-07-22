@@ -227,31 +227,8 @@
             text-align: right;
         }
 
-        body[dir="rtl"] .toast-container {
-            right: auto;
-            left: 20px;
-        }
-
-        body[dir="rtl"] .toast {
+        body[dir="rtl"] .alert-box {
             text-align: right;
-            border-left: none;
-            border-right: 4px solid;
-        }
-
-        body[dir="rtl"] .toast.success {
-            border-right-color: #28a745;
-        }
-
-        body[dir="rtl"] .toast.error {
-            border-right-color: #dc3545;
-        }
-
-        body[dir="rtl"] .toast.warning {
-            border-right-color: #ffc107;
-        }
-
-        body[dir="rtl"] .toast.info {
-            border-right-color: var(--accent-blue);
         }
 
         body[dir="rtl"] .fab {
@@ -346,12 +323,30 @@
 
         .hamburger {
             display: none;
-            background: none;
-            border: none;
-            color: var(--text-light);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--accent-blue);
             font-size: 1.5rem;
             cursor: pointer;
-            padding: 10px;
+            padding: 12px 16px;
+            transition: var(--transition);
+            position: relative;
+            z-index: 1001;
+        }
+
+        .hamburger:hover {
+            background: var(--primary-blue);
+            border-color: var(--accent-blue);
+            transform: scale(1.05);
+        }
+
+        .hamburger i {
+            transition: transform 0.3s ease;
+        }
+
+        .hamburger.active i {
+            transform: rotate(90deg);
         }
 
         /* ==================== MOBILE MENU ==================== */
@@ -366,29 +361,41 @@
             padding: 20px;
             z-index: 999;
             border-bottom: 1px solid var(--glass-border);
-            animation: slideDown 0.3s ease;
+            border-radius: 0 0 16px 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(-100%);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .mobile-menu.active {
             display: block;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            transform: translateY(0);
+            opacity: 1;
         }
 
         .mobile-menu .nav-link {
             display: block;
-            margin: 10px 0;
-            padding: 15px !important;
+            margin: 8px 0;
+            padding: 16px 20px !important;
+            border-radius: 12px;
+            transition: var(--transition);
+            transform: translateX(-20px);
+            opacity: 0;
         }
+
+        .mobile-menu.active .nav-link {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .mobile-menu.active .nav-link:nth-child(1) { transition-delay: 0.1s; }
+        .mobile-menu.active .nav-link:nth-child(2) { transition-delay: 0.15s; }
+        .mobile-menu.active .nav-link:nth-child(3) { transition-delay: 0.2s; }
+        .mobile-menu.active .nav-link:nth-child(4) { transition-delay: 0.25s; }
+        .mobile-menu.active .nav-link:nth-child(5) { transition-delay: 0.3s; }
+        .mobile-menu.active .nav-link:nth-child(6) { transition-delay: 0.35s; }
+        .mobile-menu.active .nav-link:nth-child(7) { transition-delay: 0.4s; }
 
         /* ==================== PAGE SECTIONS ==================== */
         .page-section {
@@ -710,7 +717,8 @@
             opacity: 0.85;
         }
 
-        #login-section .btn-primary {
+        /* ==================== BUTTONS ==================== */
+        .btn-primary {
             background: linear-gradient(135deg, var(--accent-blue), #00d4ff);
             border: none;
             color: var(--primary-dark);
@@ -718,41 +726,19 @@
             border-radius: 12px;
             font-weight: 700;
             transition: var(--transition);
-            width: 100%;
             font-size: 1rem;
             letter-spacing: 0.5px;
             position: relative;
             overflow: hidden;
         }
 
-        #login-section .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: 0.5s;
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(100, 255, 218, 0.4);
         }
 
-        #login-section .btn-primary:hover::before {
-            left: 100%;
-        }
-
-        #login-section .btn-primary:hover {
-            transform: translateY(-3px) scale(1.02);
-        }
-
-        #login-section .btn-primary:active {
-            transform: translateY(-1px) scale(0.98);
-        }
-
-        @media (max-width: 400px) {
-            #login-section::before,
-            #login-section::after {
-                opacity: 0.22;
-            }
+        .btn-primary:active {
+            transform: translateY(0);
         }
 
         .btn-secondary {
@@ -760,7 +746,7 @@
             border: 1px solid var(--glass-border);
             color: var(--text-light);
             padding: 12px 30px;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 600;
             transition: var(--transition);
         }
@@ -768,6 +754,7 @@
         .btn-secondary:hover {
             background: var(--primary-blue);
             transform: translateY(-2px);
+            border-color: var(--accent-blue);
         }
 
         .btn-danger {
@@ -775,7 +762,7 @@
             border: none;
             color: white;
             padding: 12px 30px;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 600;
             transition: var(--transition);
         }
@@ -790,7 +777,7 @@
             border: none;
             color: white;
             padding: 12px 30px;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 600;
             transition: var(--transition);
         }
@@ -799,6 +786,24 @@
             background: #218838;
             transform: translateY(-2px);
         }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.875rem;
+            border-radius: 8px;
+        }
+
+        .btn-sm:hover {
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 400px) {
+            #login-section::before,
+            #login-section::after {
+                opacity: 0.22;
+            }
+        }
+
 
         /* ==================== DASHBOARD ==================== */
         .stat-card {
@@ -1026,51 +1031,114 @@
             border-bottom: 1px solid var(--glass-border);
         }
 
-        /* ==================== TOAST NOTIFICATIONS ==================== */
-        .toast-container {
+        /* ==================== ALERT BOX ==================== */
+        .alert-overlay {
             position: fixed;
-            top: 100px;
-            right: 20px;
-            z-index: 9999;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
         }
 
-        .toast {
+        .alert-overlay.active {
+            display: flex;
+        }
+
+        .alert-box {
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
-            color: var(--text-light);
-            border-radius: 12px;
-            padding: 15px 25px;
-            margin-bottom: 10px;
-            animation: slideInRight 0.3s ease;
-            min-width: 300px;
+            border-radius: 16px;
+            padding: 30px 40px;
+            min-width: 400px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @keyframes slideInRight {
+        .alert-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .alert-message {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .alert-button {
+            background: linear-gradient(135deg, var(--accent-blue), #00d4ff);
+            border: none;
+            color: var(--primary-dark);
+            padding: 12px 40px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .alert-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(100, 255, 218, 0.4);
+        }
+
+        .alert-box.success .alert-icon {
+            color: #28a745;
+        }
+
+        .alert-box.success {
+            border-top: 5px solid #28a745;
+        }
+
+        .alert-box.error .alert-icon {
+            color: #dc3545;
+        }
+
+        .alert-box.error {
+            border-top: 5px solid #dc3545;
+        }
+
+        .alert-box.warning .alert-icon {
+            color: #ffc107;
+        }
+
+        .alert-box.warning {
+            border-top: 5px solid #ffc107;
+        }
+
+        .alert-box.info .alert-icon {
+            color: var(--accent-blue);
+        }
+
+        .alert-box.info {
+            border-top: 5px solid var(--accent-blue);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
             from {
                 opacity: 0;
-                transform: translateX(100px);
+                transform: scale(0.8);
             }
             to {
                 opacity: 1;
-                transform: translateX(0);
+                transform: scale(1);
             }
-        }
-
-        .toast.success {
-            border-left: 4px solid #28a745;
-        }
-
-        .toast.error {
-            border-left: 4px solid #dc3545;
-        }
-
-        .toast.warning {
-            border-left: 4px solid #ffc107;
-        }
-
-        .toast.info {
-            border-left: 4px solid var(--accent-blue);
         }
 
         /* ==================== LOADING SPINNER ==================== */
@@ -1388,8 +1456,8 @@
                     HISHYAR CO.
                 </a>
                 
-                <button class="hamburger" onclick="toggleMobileMenu()">
-                    <i class="fas fa-grip"></i>
+                <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
                 </button>
                 
                 <div class="navbar-nav ms-auto" id="desktop-nav">
@@ -1610,22 +1678,28 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.color">Color</label>
                                     <input type="text" class="form-control" id="car-color">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.vin">VIN Number</label>
                                     <input type="text" class="form-control" id="vin-number">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.model">Model</label>
                                     <input type="text" class="form-control" id="car-model">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="receipt.plateNumber">Plate Number</label>
+                                    <input type="text" class="form-control" id="plate-number">
                                 </div>
                             </div>
                         </div>
@@ -1637,19 +1711,25 @@
                         </h5>
 
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.customs">Customs Amount ($)</label>
                                     <input type="number" class="form-control" id="customs-amount" step="0.01" oninput="calculateTotal()">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.expenses">Expenses ($)</label>
                                     <input type="number" class="form-control" id="expenses" step="0.01" oninput="calculateTotal()">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="receipt.clearanceCost">Total Clearance Cost ($)</label>
+                                    <input type="number" class="form-control" id="clearance-cost" step="0.01" oninput="calculateTotal()">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.received">Received Amount ($)</label>
                                     <input type="number" class="form-control" id="received-amount" step="0.01" oninput="calculateTotal()">
@@ -1657,9 +1737,21 @@
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="receipt.receivedStatus">Received Status</label>
+                                    <select class="form-select" id="received-status">
+                                        <option value="yes" data-i18n="status.yes">Yes</option>
+                                        <option value="no" data-i18n="status.no">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mb-3">
-                            <label class="form-label" data-i18n="receipt.total">Total Amount ($)</label>
-                            <input type="number" class="form-control" id="total-amount" step="0.01" readonly style="font-weight: 700; font-size: 1.2rem; color: var(--accent-blue);">
+                            <label class="form-label" data-i18n="receipt.total">Total Amount</label>
+                            <input type="text" class="form-control" id="total-amount" step="0.01" readonly style="font-weight: 700; font-size: 1.2rem; color: #ffffff; background: var(--primary-blue); border: 2px solid var(--accent-blue);">
                         </div>
 
                         <div class="row mt-4">
@@ -1865,6 +1957,10 @@
                             <span>Model:</span>
                             <span id="preview-model">-</span>
                         </div>
+                        <div class="receipt-row">
+                            <span data-i18n="receipt.plateNumber">Plate Number:</span>
+                            <span id="preview-plate-number">-</span>
+                        </div>
                     </div>
 
                     <div class="receipt-section">
@@ -1878,8 +1974,16 @@
                             <span id="preview-expenses">$0.00</span>
                         </div>
                         <div class="receipt-row">
-                            <span>Received Amount:</span>
+                            <span data-i18n="receipt.clearanceCost">Total Clearance Cost:</span>
+                            <span id="preview-clearance">$0.00</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span data-i18n="receipt.received">Received Amount:</span>
                             <span id="preview-received">$0.00</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span data-i18n="receipt.receivedStatus">Received Status:</span>
+                            <span id="preview-received-status">Yes</span>
                         </div>
                     </div>
 
@@ -2078,6 +2182,15 @@
         </footer>
     </div>
 
+    <!-- ==================== ALERT BOX ==================== -->
+    <div class="alert-overlay" id="alert-overlay">
+        <div class="alert-box" id="alert-box">
+            <i class="fas fa-check-circle alert-icon" id="alert-icon"></i>
+            <p class="alert-message" id="alert-message">Message</p>
+            <button class="alert-button" id="alert-button">OK</button>
+        </div>
+    </div>
+
     <!-- ==================== FLOATING ACTION BUTTON ==================== -->
     <div class="fab" id="fab" onclick="navigateTo('receipt')" style="display: none;">
         <i class="fas fa-plus"></i>
@@ -2185,11 +2298,14 @@
                 'receipt.color': 'Color',
                 'receipt.vin': 'VIN Number',
                 'receipt.model': 'Model',
+                'receipt.plateNumber': 'Plate Number',
                 'receipt.financial': 'Financial Details',
                 'receipt.customs': 'Customs Amount ($)',
                 'receipt.expenses': 'Expenses ($)',
+                'receipt.clearanceCost': 'Total Clearance Cost ($)',
                 'receipt.received': 'Received Amount ($)',
-                'receipt.total': 'Total Amount ($)',
+                'receipt.receivedStatus': 'Received Status',
+                'receipt.total': 'Total Amount',
                 'btn.save': 'Save',
                 'btn.update': 'Update',
                 'btn.delete': 'Delete',
@@ -2260,6 +2376,10 @@
                 'category.luxury': 'Luxury',
                 'category.other': 'Other',
                 
+                // Status
+                'status.yes': 'Yes',
+                'status.no': 'No',
+                
                 // Messages
                 'msg.loginSuccess': 'Login successful!',
                 'msg.logoutSuccess': 'Logged out successfully',
@@ -2323,11 +2443,14 @@
                 'receipt.color': 'اللون',
                 'receipt.vin': 'رقم الهيكل',
                 'receipt.model': 'الموديل',
+                'receipt.plateNumber': 'رقم اللوحة',
                 'receipt.financial': 'التفاصيل المالية',
                 'receipt.customs': 'مبلغ الجمارك ($)',
                 'receipt.expenses': 'المصاريف ($)',
+                'receipt.clearanceCost': 'تكلفة التخليص الإجمالية ($)',
                 'receipt.received': 'المبلغ المستلم ($)',
-                'receipt.total': 'المبلغ الإجمالي ($)',
+                'receipt.receivedStatus': 'حالة الاستلام',
+                'receipt.total': 'المبلغ الإجمالي',
                 'btn.save': 'حفظ',
                 'btn.update': 'تحديث',
                 'btn.delete': 'حذف',
@@ -2397,6 +2520,10 @@
                 'category.sports': 'رياضية',
                 'category.luxury': 'فاخرة',
                 'category.other': 'أخرى',
+                
+                // Status
+                'status.yes': 'نعم',
+                'status.no': 'لا',
                 
                 // Messages
                 'msg.loginSuccess': 'تم تسجيل الدخول بنجاح!',
@@ -2880,6 +3007,24 @@
                     option.textContent = translation;
                 }
             });
+            
+            // Update receipt details preview labels
+            const previewLabels = {
+                'preview-plate-number': 'receipt.plateNumber',
+                'preview-clearance': 'receipt.clearanceCost',
+                'preview-received': 'receipt.received',
+                'preview-received-status': 'receipt.receivedStatus'
+            };
+            
+            for (const [elementId, translationKey] of Object.entries(previewLabels)) {
+                const element = document.getElementById(elementId);
+                if (element && element.previousElementSibling) {
+                    const label = element.previousElementSibling;
+                    if (label.tagName === 'SPAN') {
+                        label.textContent = translations[lang][translationKey] || translations['en'][translationKey] || translationKey;
+                    }
+                }
+            }
         }
 
         // ==================== AUTHENTICATION ====================
@@ -3011,7 +3156,20 @@
 
         function toggleMobileMenu() {
             const mobileMenu = document.getElementById('mobile-menu');
+            const hamburger = document.querySelector('.hamburger');
+            const hamburgerIcon = hamburger.querySelector('i');
+            
             mobileMenu.classList.toggle('active');
+            hamburger.classList.toggle('active');
+            
+            // Animate hamburger icon
+            if (hamburger.classList.contains('active')) {
+                hamburgerIcon.classList.remove('fa-bars');
+                hamburgerIcon.classList.add('fa-times');
+            } else {
+                hamburgerIcon.classList.remove('fa-times');
+                hamburgerIcon.classList.add('fa-bars');
+            }
         }
 
         // ==================== RECEIPT OPERATIONS ====================
@@ -3034,9 +3192,10 @@
         function calculateTotal() {
             const customs = parseFloat(document.getElementById('customs-amount').value) || 0;
             const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+            const clearance = parseFloat(document.getElementById('clearance-cost').value) || 0;
             const received = parseFloat(document.getElementById('received-amount').value) || 0;
-            const total = customs + expenses + received;
-            document.getElementById('total-amount').value = total.toFixed(2);
+            const total = customs + expenses + clearance + received;
+            document.getElementById('total-amount').value = '$' + total.toFixed(2);
         }
 
         function saveReceipt() {
@@ -3048,10 +3207,13 @@
                 color: document.getElementById('car-color').value,
                 vin: document.getElementById('vin-number').value,
                 model: document.getElementById('car-model').value,
+                plateNumber: document.getElementById('plate-number').value,
                 date: document.getElementById('receipt-date').value,
                 customsAmount: parseFloat(document.getElementById('customs-amount').value) || 0,
                 expenses: parseFloat(document.getElementById('expenses').value) || 0,
+                clearanceCost: parseFloat(document.getElementById('clearance-cost').value) || 0,
                 receivedAmount: parseFloat(document.getElementById('received-amount').value) || 0,
+                receivedStatus: document.getElementById('received-status').value,
                 totalAmount: parseFloat(document.getElementById('total-amount').value) || 0,
                 createdAt: new Date().toISOString()
             };
@@ -3091,10 +3253,13 @@
                 color: document.getElementById('car-color').value,
                 vin: document.getElementById('vin-number').value,
                 model: document.getElementById('car-model').value,
+                plateNumber: document.getElementById('plate-number').value,
                 date: document.getElementById('receipt-date').value,
                 customsAmount: parseFloat(document.getElementById('customs-amount').value) || 0,
                 expenses: parseFloat(document.getElementById('expenses').value) || 0,
+                clearanceCost: parseFloat(document.getElementById('clearance-cost').value) || 0,
                 receivedAmount: parseFloat(document.getElementById('received-amount').value) || 0,
+                receivedStatus: document.getElementById('received-status').value,
                 totalAmount: parseFloat(document.getElementById('total-amount').value) || 0,
                 updatedAt: new Date().toISOString()
             };
@@ -3151,11 +3316,14 @@
                     document.getElementById('car-color').value = receipt.color || '';
                     document.getElementById('vin-number').value = receipt.vin || '';
                     document.getElementById('car-model').value = receipt.model || '';
+                    document.getElementById('plate-number').value = receipt.plateNumber || '';
                     document.getElementById('receipt-date').value = receipt.date;
                     document.getElementById('customs-amount').value = receipt.customsAmount;
                     document.getElementById('expenses').value = receipt.expenses;
+                    document.getElementById('clearance-cost').value = receipt.clearanceCost || 0;
                     document.getElementById('received-amount').value = receipt.receivedAmount;
-                    document.getElementById('total-amount').value = receipt.totalAmount;
+                    document.getElementById('received-status').value = receipt.receivedStatus || 'yes';
+                    document.getElementById('total-amount').value = '$' + receipt.totalAmount.toFixed(2);
                     navigateTo('receipt');
                 } else {
                     // If not found in local DB, try to find in all receipts (for Firebase)
@@ -3170,11 +3338,14 @@
                             document.getElementById('car-color').value = receipt.color || '';
                             document.getElementById('vin-number').value = receipt.vin || '';
                             document.getElementById('car-model').value = receipt.model || '';
+                            document.getElementById('plate-number').value = receipt.plateNumber || '';
                             document.getElementById('receipt-date').value = receipt.date;
                             document.getElementById('customs-amount').value = receipt.customsAmount;
                             document.getElementById('expenses').value = receipt.expenses;
+                            document.getElementById('clearance-cost').value = receipt.clearanceCost || 0;
                             document.getElementById('received-amount').value = receipt.receivedAmount;
-                            document.getElementById('total-amount').value = receipt.totalAmount;
+                            document.getElementById('received-status').value = receipt.receivedStatus || 'yes';
+                            document.getElementById('total-amount').value = '$' + receipt.totalAmount.toFixed(2);
                             navigateTo('receipt');
                         } else {
                             showToast('Receipt not found', 'error');
@@ -3211,6 +3382,7 @@
             recentBody.innerHTML = '';
 
             recentReceipts.forEach(receipt => {
+                const receiptId = receipt.firebaseId || receipt.id;
                 recentBody.innerHTML += `
                     <tr>
                         <td>${receipt.receiptNumber}</td>
@@ -3219,10 +3391,10 @@
                         <td>${receipt.date}</td>
                         <td>$${receipt.totalAmount.toFixed(2)}</td>
                         <td>
-                            <button class="btn btn-sm btn-primary" onclick="viewReceiptDetails(${receipt.id})">
+                            <button class="btn btn-sm btn-primary" onclick="viewReceiptDetails('${receiptId}')">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn btn-sm btn-secondary" onclick="loadReceiptForEdit(${receipt.id})">
+                            <button class="btn btn-sm btn-secondary" onclick="loadReceiptForEdit('${receiptId}')">
                                 <i class="fas fa-edit"></i>
                             </button>
                         </td>
@@ -3340,6 +3512,8 @@
             tbody.innerHTML = '';
 
             pageData.forEach(receipt => {
+                // Use firebaseId if available, otherwise use local id
+                const receiptId = receipt.firebaseId || receipt.id;
                 tbody.innerHTML += `
                     <tr>
                         <td>${receipt.receiptNumber}</td>
@@ -3349,13 +3523,13 @@
                         <td>${receipt.date}</td>
                         <td>$${receipt.totalAmount.toFixed(2)}</td>
                         <td>
-                            <button class="btn btn-sm btn-primary" onclick="viewReceiptDetails(${receipt.id})">
+                            <button class="btn btn-sm btn-primary" onclick="viewReceiptDetails('${receiptId}')">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn btn-sm btn-secondary" onclick="loadReceiptForEdit(${receipt.id})">
+                            <button class="btn btn-sm btn-secondary" onclick="loadReceiptForEdit('${receiptId}')">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn btn-sm btn-danger" onclick="confirmDeleteReceipt(${receipt.id})">
+                            <button class="btn btn-sm btn-danger" onclick="confirmDeleteReceipt('${receiptId}')">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
@@ -3551,6 +3725,7 @@
             }
 
             results.forEach(receipt => {
+                const receiptId = receipt.firebaseId || receipt.id;
                 container.innerHTML += `
                     <div class="search-result-card glass">
                         <h5>${receipt.receiptNumber}</h5>
@@ -3575,10 +3750,10 @@
                             <span>$${receipt.totalAmount.toFixed(2)}</span>
                         </div>
                         <div class="mt-3">
-                            <button class="btn btn-sm btn-primary" onclick="viewReceiptDetails(${receipt.id})">
+                            <button class="btn btn-sm btn-primary" onclick="viewReceiptDetails('${receiptId}')">
                                 <i class="fas fa-eye me-1"></i>View Details
                             </button>
-                            <button class="btn btn-sm btn-secondary" onclick="loadReceiptForEdit(${receipt.id})">
+                            <button class="btn btn-sm btn-secondary" onclick="loadReceiptForEdit('${receiptId}')">
                                 <i class="fas fa-edit me-1"></i>Edit
                             </button>
                         </div>
@@ -3610,9 +3785,12 @@
             document.getElementById('preview-color').textContent = receipt.color || '-';
             document.getElementById('preview-vin').textContent = receipt.vin || '-';
             document.getElementById('preview-model').textContent = receipt.model || '-';
+            document.getElementById('preview-plate-number').textContent = receipt.plateNumber || '-';
             document.getElementById('preview-customs').textContent = '$' + receipt.customsAmount.toFixed(2);
             document.getElementById('preview-expenses').textContent = '$' + receipt.expenses.toFixed(2);
+            document.getElementById('preview-clearance').textContent = '$' + (receipt.clearanceCost || 0).toFixed(2);
             document.getElementById('preview-received').textContent = '$' + receipt.receivedAmount.toFixed(2);
+            document.getElementById('preview-received-status').textContent = receipt.receivedStatus || 'Yes';
             document.getElementById('preview-total').textContent = '$' + receipt.totalAmount.toFixed(2);
 
             // Generate QR Code
@@ -4004,19 +4182,29 @@
 
         // ==================== UTILITY FUNCTIONS ====================
         function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
-                ${message}
-            `;
-            container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.style.animation = 'slideInRight 0.3s ease reverse';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            const overlay = document.getElementById('alert-overlay');
+            const alertBox = document.getElementById('alert-box');
+            const alertIcon = document.getElementById('alert-icon');
+            const alertMessage = document.getElementById('alert-message');
+            const alertButton = document.getElementById('alert-button');
+            
+            // Set icon
+            const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle';
+            alertIcon.className = `fas fa-${icon} alert-icon`;
+            
+            // Set message
+            alertMessage.textContent = message;
+            
+            // Set type
+            alertBox.className = `alert-box ${type}`;
+            
+            // Show alert
+            overlay.classList.add('active');
+            
+            // Handle button click
+            alertButton.onclick = function() {
+                overlay.classList.remove('active');
+            };
         }
 
         function showLoading() {
