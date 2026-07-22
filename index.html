@@ -80,6 +80,8 @@
             height: 100%;
             z-index: -1;
             overflow: hidden;
+            background: var(--gradient);
+            will-change: transform;
         }
 
         .animated-background::before {
@@ -93,6 +95,9 @@
                         radial-gradient(circle at 80% 20%, rgba(100, 255, 218, 0.1) 0%, transparent 50%),
                         radial-gradient(circle at 40% 40%, rgba(100, 255, 218, 0.05) 0%, transparent 30%);
             animation: gradientMove 15s ease-in-out infinite;
+            will-change: transform;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
         }
 
         @keyframes gradientMove {
@@ -111,6 +116,7 @@
             height: 100%;
             z-index: -1;
             pointer-events: none;
+            will-change: transform;
         }
 
         .particle {
@@ -121,6 +127,9 @@
             border-radius: 50%;
             opacity: 0.3;
             animation: float 20s infinite;
+            will-change: transform, opacity;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
         }
 
         @keyframes float {
@@ -2651,26 +2660,6 @@
             });
         }
 
-        function getReceiptById(id) {
-            return new Promise((resolve, reject) => {
-                if (!db) {
-                    reject(new Error('Database not initialized'));
-                    return;
-                }
-                const transaction = db.transaction([STORE_NAME], 'readonly');
-                const objectStore = transaction.objectStore(STORE_NAME);
-                const request = objectStore.get(id);
-
-                request.onsuccess = function() {
-                    resolve(request.result);
-                };
-
-                request.onerror = function(event) {
-                    console.error('Error getting receipt:', event.target.error);
-                    reject(event.target.error);
-                };
-            });
-        }
 
         function getAllReceipts() {
             return new Promise((resolve, reject) => {
@@ -2693,6 +2682,27 @@
                     // Get from local storage
                     getAllLocalReceipts().then(resolve).catch(reject);
                 }
+            });
+        }
+
+        function getReceiptById(id) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject(new Error('Database not initialized'));
+                    return;
+                }
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const objectStore = transaction.objectStore(STORE_NAME);
+                const request = objectStore.get(id);
+
+                request.onsuccess = function() {
+                    resolve(request.result);
+                };
+
+                request.onerror = function(event) {
+                    console.error('Error getting receipt:', event.target.error);
+                    reject(event.target.error);
+                };
             });
         }
 
@@ -3130,6 +3140,7 @@
         }
 
         function loadReceiptForEdit(id) {
+            // Try to get from local database first
             getReceiptById(id).then(receipt => {
                 if (receipt) {
                     currentReceiptId = receipt.id;
@@ -3146,7 +3157,33 @@
                     document.getElementById('received-amount').value = receipt.receivedAmount;
                     document.getElementById('total-amount').value = receipt.totalAmount;
                     navigateTo('receipt');
+                } else {
+                    // If not found in local DB, try to find in all receipts (for Firebase)
+                    getAllReceipts().then(receipts => {
+                        const receipt = receipts.find(r => r.id === id || r.firebaseId === id);
+                        if (receipt) {
+                            currentReceiptId = receipt.id;
+                            document.getElementById('receipt-number').value = receipt.receiptNumber;
+                            document.getElementById('customer-name').value = receipt.customerName;
+                            document.getElementById('car-name').value = receipt.carName;
+                            document.getElementById('car-category').value = receipt.category;
+                            document.getElementById('car-color').value = receipt.color || '';
+                            document.getElementById('vin-number').value = receipt.vin || '';
+                            document.getElementById('car-model').value = receipt.model || '';
+                            document.getElementById('receipt-date').value = receipt.date;
+                            document.getElementById('customs-amount').value = receipt.customsAmount;
+                            document.getElementById('expenses').value = receipt.expenses;
+                            document.getElementById('received-amount').value = receipt.receivedAmount;
+                            document.getElementById('total-amount').value = receipt.totalAmount;
+                            navigateTo('receipt');
+                        } else {
+                            showToast('Receipt not found', 'error');
+                        }
+                    });
                 }
+            }).catch(error => {
+                console.error('Error loading receipt for edit:', error);
+                showToast('Error loading receipt', 'error');
             });
         }
 
@@ -3394,11 +3431,41 @@
         function confirmDeleteReceipt(id) {
             showConfirmModal('Are you sure you want to delete this receipt?', () => {
                 showLoading();
-                deleteReceiptDB(id).then(() => {
-                    hideLoading();
-                    loadDatabase();
-                    refreshAllData();
-                    showToast(t('msg.deleted'), 'success');
+                
+                // Try to get the receipt first to check if it has firebaseId
+                getReceiptById(id).then(receipt => {
+                    if (receipt) {
+                        // Use the local ID for deletion
+                        deleteReceiptDB(receipt.id).then(() => {
+                            hideLoading();
+                            loadDatabase();
+                            refreshAllData();
+                            showToast(t('msg.deleted'), 'success');
+                        }).catch(error => {
+                            hideLoading();
+                            showToast('Error deleting receipt: ' + error, 'error');
+                        });
+                    } else {
+                        // If not found in local DB, try Firebase direct deletion
+                        if (useFirebase && firestore) {
+                            firestore.collection('receipts').doc(id).delete()
+                                .then(() => {
+                                    // Also try to delete from local DB
+                                    deleteLocal(id).catch(() => {});
+                                    hideLoading();
+                                    loadDatabase();
+                                    refreshAllData();
+                                    showToast(t('msg.deleted'), 'success');
+                                })
+                                .catch(error => {
+                                    hideLoading();
+                                    showToast('Error deleting receipt: ' + error, 'error');
+                                });
+                        } else {
+                            hideLoading();
+                            showToast('Receipt not found', 'error');
+                        }
+                    }
                 }).catch(error => {
                     hideLoading();
                     showToast('Error deleting receipt: ' + error, 'error');
@@ -3522,8 +3589,18 @@
 
         // ==================== RECEIPT DETAILS ====================
         async function viewReceiptDetails(id) {
-            const receipt = await getReceiptById(id);
-            if (!receipt) return;
+            let receipt = await getReceiptById(id);
+            
+            // If not found in local DB, try to find in all receipts (for Firebase)
+            if (!receipt) {
+                const receipts = await getAllReceipts();
+                receipt = receipts.find(r => r.id === id || r.firebaseId === id);
+            }
+            
+            if (!receipt) {
+                showToast('Receipt not found', 'error');
+                return;
+            }
 
             document.getElementById('preview-receipt-number').textContent = 'Receipt #' + receipt.receiptNumber;
             document.getElementById('preview-customer-name').textContent = receipt.customerName;
