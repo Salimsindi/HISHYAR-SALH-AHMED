@@ -1482,6 +1482,10 @@
                     <a class="nav-link" href="#" onclick="logout()">
                         <i class="fas fa-right-from-bracket me-2"></i><span data-i18n="nav.logout">Logout</span>
                     </a>
+                    <div class="nav-link" style="cursor: default;">
+                        <i class="fas fa-wifi me-2" id="connection-status" style="color: var(--accent-blue);"></i>
+                        <span id="connection-text" style="font-size: 0.8rem;">Online</span>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -1700,6 +1704,15 @@
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.plateNumber">Plate Number</label>
                                     <input type="text" class="form-control" id="plate-number">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" data-i18n="receipt.numberOfCars">Number of Cars</label>
+                                    <input type="number" class="form-control" id="number-of-cars" value="1" min="1">
                                 </div>
                             </div>
                         </div>
@@ -1960,6 +1973,10 @@
                         <div class="receipt-row">
                             <span data-i18n="receipt.plateNumber">Plate Number:</span>
                             <span id="preview-plate-number">-</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span data-i18n="receipt.numberOfCars">Number of Cars:</span>
+                            <span id="preview-number-of-cars">-</span>
                         </div>
                     </div>
 
@@ -2299,6 +2316,7 @@
                 'receipt.vin': 'VIN Number',
                 'receipt.model': 'Model',
                 'receipt.plateNumber': 'Plate Number',
+                'receipt.numberOfCars': 'Number of Cars',
                 'receipt.financial': 'Financial Details',
                 'receipt.customs': 'Customs Amount ($)',
                 'receipt.expenses': 'Expenses ($)',
@@ -2444,6 +2462,7 @@
                 'receipt.vin': 'رقم الهيكل',
                 'receipt.model': 'الموديل',
                 'receipt.plateNumber': 'رقم اللوحة',
+                'receipt.numberOfCars': 'عدد السيارات',
                 'receipt.financial': 'التفاصيل المالية',
                 'receipt.customs': 'مبلغ الجمارك ($)',
                 'receipt.expenses': 'المصاريف ($)',
@@ -2887,6 +2906,9 @@
         // Real-time sync listener
         function setupRealtimeSync() {
             if (useFirebase && firestore) {
+                // Update connection status
+                updateConnectionStatus(true);
+                
                 firestore.collection('receipts').onSnapshot(snapshot => {
                     snapshot.docChanges().forEach(change => {
                         if (change.type === 'added') {
@@ -2900,7 +2922,30 @@
                             refreshAllData();
                         }
                     });
+                }, error => {
+                    console.error('Firebase sync error:', error);
+                    updateConnectionStatus(false);
                 });
+            } else {
+                updateConnectionStatus(false);
+            }
+        }
+
+        function updateConnectionStatus(connected) {
+            const statusIcon = document.getElementById('connection-status');
+            const statusText = document.getElementById('connection-text');
+            if (statusIcon && statusText) {
+                if (connected) {
+                    statusIcon.style.color = '#28a745';
+                    statusIcon.className = 'fas fa-wifi me-2';
+                    statusText.textContent = 'Online';
+                    statusText.style.color = '#28a745';
+                } else {
+                    statusIcon.style.color = '#dc3545';
+                    statusIcon.className = 'fas fa-wifi me-2';
+                    statusText.textContent = 'Offline';
+                    statusText.style.color = '#dc3545';
+                }
             }
         }
 
@@ -3199,6 +3244,12 @@
         }
 
         function saveReceipt() {
+            const customs = parseFloat(document.getElementById('customs-amount').value) || 0;
+            const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+            const clearance = parseFloat(document.getElementById('clearance-cost').value) || 0;
+            const received = parseFloat(document.getElementById('received-amount').value) || 0;
+            const total = customs + expenses + clearance + received;
+            
             const receipt = {
                 receiptNumber: document.getElementById('receipt-number').value,
                 customerName: document.getElementById('customer-name').value,
@@ -3208,13 +3259,14 @@
                 vin: document.getElementById('vin-number').value,
                 model: document.getElementById('car-model').value,
                 plateNumber: document.getElementById('plate-number').value,
+                numberOfCars: parseInt(document.getElementById('number-of-cars').value) || 1,
                 date: document.getElementById('receipt-date').value,
-                customsAmount: parseFloat(document.getElementById('customs-amount').value) || 0,
-                expenses: parseFloat(document.getElementById('expenses').value) || 0,
-                clearanceCost: parseFloat(document.getElementById('clearance-cost').value) || 0,
-                receivedAmount: parseFloat(document.getElementById('received-amount').value) || 0,
+                customsAmount: customs,
+                expenses: expenses,
+                clearanceCost: clearance,
+                receivedAmount: received,
                 receivedStatus: document.getElementById('received-status').value,
-                totalAmount: parseFloat(document.getElementById('total-amount').value) || 0,
+                totalAmount: total,
                 createdAt: new Date().toISOString()
             };
 
@@ -3244,6 +3296,12 @@
                 return;
             }
 
+            const customs = parseFloat(document.getElementById('customs-amount').value) || 0;
+            const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+            const clearance = parseFloat(document.getElementById('clearance-cost').value) || 0;
+            const received = parseFloat(document.getElementById('received-amount').value) || 0;
+            const total = customs + expenses + clearance + received;
+
             const receipt = {
                 id: currentReceiptId,
                 receiptNumber: document.getElementById('receipt-number').value,
@@ -3254,13 +3312,14 @@
                 vin: document.getElementById('vin-number').value,
                 model: document.getElementById('car-model').value,
                 plateNumber: document.getElementById('plate-number').value,
+                numberOfCars: parseInt(document.getElementById('number-of-cars').value) || 1,
                 date: document.getElementById('receipt-date').value,
-                customsAmount: parseFloat(document.getElementById('customs-amount').value) || 0,
-                expenses: parseFloat(document.getElementById('expenses').value) || 0,
-                clearanceCost: parseFloat(document.getElementById('clearance-cost').value) || 0,
-                receivedAmount: parseFloat(document.getElementById('received-amount').value) || 0,
+                customsAmount: customs,
+                expenses: expenses,
+                clearanceCost: clearance,
+                receivedAmount: received,
                 receivedStatus: document.getElementById('received-status').value,
-                totalAmount: parseFloat(document.getElementById('total-amount').value) || 0,
+                totalAmount: total,
                 updatedAt: new Date().toISOString()
             };
 
@@ -3317,6 +3376,7 @@
                     document.getElementById('vin-number').value = receipt.vin || '';
                     document.getElementById('car-model').value = receipt.model || '';
                     document.getElementById('plate-number').value = receipt.plateNumber || '';
+                    document.getElementById('number-of-cars').value = receipt.numberOfCars || 1;
                     document.getElementById('receipt-date').value = receipt.date;
                     document.getElementById('customs-amount').value = receipt.customsAmount;
                     document.getElementById('expenses').value = receipt.expenses;
@@ -3339,6 +3399,7 @@
                             document.getElementById('vin-number').value = receipt.vin || '';
                             document.getElementById('car-model').value = receipt.model || '';
                             document.getElementById('plate-number').value = receipt.plateNumber || '';
+                            document.getElementById('number-of-cars').value = receipt.numberOfCars || 1;
                             document.getElementById('receipt-date').value = receipt.date;
                             document.getElementById('customs-amount').value = receipt.customsAmount;
                             document.getElementById('expenses').value = receipt.expenses;
@@ -3786,11 +3847,14 @@
             document.getElementById('preview-vin').textContent = receipt.vin || '-';
             document.getElementById('preview-model').textContent = receipt.model || '-';
             document.getElementById('preview-plate-number').textContent = receipt.plateNumber || '-';
+            document.getElementById('preview-number-of-cars').textContent = receipt.numberOfCars || 1;
             document.getElementById('preview-customs').textContent = '$' + receipt.customsAmount.toFixed(2);
             document.getElementById('preview-expenses').textContent = '$' + receipt.expenses.toFixed(2);
             document.getElementById('preview-clearance').textContent = '$' + (receipt.clearanceCost || 0).toFixed(2);
             document.getElementById('preview-received').textContent = '$' + receipt.receivedAmount.toFixed(2);
-            document.getElementById('preview-received-status').textContent = receipt.receivedStatus || 'Yes';
+            // Translate status for display
+            const statusKey = receipt.receivedStatus === 'yes' ? 'status.yes' : 'status.no';
+            document.getElementById('preview-received-status').textContent = t(statusKey);
             document.getElementById('preview-total').textContent = '$' + receipt.totalAmount.toFixed(2);
 
             // Generate QR Code
