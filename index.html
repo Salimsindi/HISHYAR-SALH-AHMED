@@ -1919,55 +1919,55 @@
             <div class="container">
                 <div class="no-print mb-4">
                     <button class="btn-secondary" onclick="navigateTo('database')">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Database
+                        <i class="fas fa-arrow-left me-2"></i><span data-i18n="receiptDetails.back">Back to Database</span>
                     </button>
                     <button class="btn-primary ms-2" onclick="window.print()">
-                        <i class="fas fa-print me-2"></i>Print
+                        <i class="fas fa-print me-2"></i><span data-i18n="btn.print">Print</span>
                     </button>
                     <button class="btn-success ms-2" onclick="downloadPDF()">
-                        <i class="fas fa-file-pdf me-2"></i>Download PDF
+                        <i class="fas fa-file-pdf me-2"></i><span data-i18n="btn.downloadPdf">Download PDF</span>
                     </button>
                 </div>
 
                 <div class="receipt-preview glass" id="receipt-preview-content">
                     <div class="receipt-header">
                         <h2>HISHYAR SALIH AHMED CO.</h2>
-                        <p>Receipt Management System</p>
-                        <div class="receipt-number" id="preview-receipt-number">Receipt #000001</div>
+                        <p data-i18n="receiptDetails.system">Receipt Management System</p>
+                        <div class="receipt-number" id="preview-receipt-number" data-i18n="receiptDetails.receiptNumber">Receipt #000001</div>
                     </div>
 
                     <div class="receipt-section">
-                        <h4>Customer Details</h4>
+                        <h4 data-i18n="receiptDetails.customer">Customer Details</h4>
                         <div class="receipt-row">
-                            <span>Full Name:</span>
+                            <span data-i18n="receipt.fullName">Full Name:</span>
                             <span id="preview-customer-name">-</span>
                         </div>
                         <div class="receipt-row">
-                            <span>Date:</span>
+                            <span data-i18n="receipt.date">Date:</span>
                             <span id="preview-date">-</span>
                         </div>
                     </div>
 
                     <div class="receipt-section">
-                        <h4>Vehicle Details</h4>
+                        <h4 data-i18n="receiptDetails.vehicle">Vehicle Details</h4>
                         <div class="receipt-row">
-                            <span>Car Name:</span>
+                            <span data-i18n="receipt.carName">Car Name:</span>
                             <span id="preview-car-name">-</span>
                         </div>
                         <div class="receipt-row">
-                            <span>Category:</span>
+                            <span data-i18n="receipt.category">Category:</span>
                             <span id="preview-category">-</span>
                         </div>
                         <div class="receipt-row">
-                            <span>Color:</span>
+                            <span data-i18n="receipt.color">Color:</span>
                             <span id="preview-color">-</span>
                         </div>
                         <div class="receipt-row">
-                            <span>VIN Number:</span>
+                            <span data-i18n="receipt.vin">VIN Number:</span>
                             <span id="preview-vin">-</span>
                         </div>
                         <div class="receipt-row">
-                            <span>Model:</span>
+                            <span data-i18n="receipt.model">Model:</span>
                             <span id="preview-model">-</span>
                         </div>
                         <div class="receipt-row">
@@ -1981,13 +1981,13 @@
                     </div>
 
                     <div class="receipt-section">
-                        <h4>Financial Details</h4>
+                        <h4 data-i18n="receiptDetails.financial">Financial Details</h4>
                         <div class="receipt-row">
-                            <span>Customs Amount:</span>
+                            <span data-i18n="receipt.customs">Customs Amount:</span>
                             <span id="preview-customs">$0.00</span>
                         </div>
                         <div class="receipt-row">
-                            <span>Expenses:</span>
+                            <span data-i18n="receipt.expenses">Expenses:</span>
                             <span id="preview-expenses">$0.00</span>
                         </div>
                         <div class="receipt-row">
@@ -2006,7 +2006,7 @@
 
                     <div class="receipt-total">
                         <div class="receipt-row">
-                            <span>Total Amount:</span>
+                            <span data-i18n="receipt.total">Total Amount:</span>
                             <span id="preview-total">$0.00</span>
                         </div>
                     </div>
@@ -2330,6 +2330,7 @@
                 'btn.reset': 'Reset',
                 'btn.print': 'Print',
                 'btn.preview': 'Preview',
+                'btn.downloadPdf': 'Download PDF',
                 
                 // Database
                 'database.title': 'Database',
@@ -2346,6 +2347,8 @@
                 
                 // Receipt Details
                 'receiptDetails.back': 'Back to Database',
+                'receiptDetails.system': 'Receipt Management System',
+                'receiptDetails.receiptNumber': 'Receipt #',
                 'receiptDetails.customer': 'Customer Details',
                 'receiptDetails.vehicle': 'Vehicle Details',
                 'receiptDetails.financial': 'Financial Details',
@@ -2476,6 +2479,7 @@
                 'btn.reset': 'إعادة تعيين',
                 'btn.print': 'طباعة',
                 'btn.preview': 'معاينة',
+                'btn.downloadPdf': 'تحميل PDF',
                 
                 // Database
                 'database.title': 'قاعدة البيانات',
@@ -2492,6 +2496,8 @@
                 
                 // Receipt Details
                 'receiptDetails.back': 'العودة إلى قاعدة البيانات',
+                'receiptDetails.system': 'نظام إدارة الإيصالات',
+                'receiptDetails.receiptNumber': 'إيصال #',
                 'receiptDetails.customer': 'تفاصيل العميل',
                 'receiptDetails.vehicle': 'تفاصيل المركبة',
                 'receiptDetails.financial': 'التفاصيل المالية',
@@ -3069,6 +3075,13 @@
                         label.textContent = translations[lang][translationKey] || translations['en'][translationKey] || translationKey;
                     }
                 }
+            }
+            
+            // Update receipt number prefix in receipt details
+            const receiptNumberElement = document.getElementById('preview-receipt-number');
+            if (receiptNumberElement && receiptNumberElement.textContent.includes('Receipt #')) {
+                const number = receiptNumberElement.textContent.replace('Receipt #', '').replace('إيصال #', '');
+                receiptNumberElement.textContent = (lang === 'ar' ? 'إيصال #' : 'Receipt #') + number;
             }
         }
 
@@ -3838,7 +3851,7 @@
                 return;
             }
 
-            document.getElementById('preview-receipt-number').textContent = 'Receipt #' + receipt.receiptNumber;
+            document.getElementById('preview-receipt-number').textContent = (currentLanguage === 'ar' ? 'إيصال #' : 'Receipt #') + receipt.receiptNumber;
             document.getElementById('preview-customer-name').textContent = receipt.customerName;
             document.getElementById('preview-date').textContent = receipt.date;
             document.getElementById('preview-car-name').textContent = receipt.carName;
