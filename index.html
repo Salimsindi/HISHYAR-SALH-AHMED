@@ -940,6 +940,16 @@
             margin: 0 auto;
         }
 
+        body[dir="rtl"] .receipt-preview {
+            direction: rtl;
+            text-align: right;
+        }
+
+        body[dir="ltr"] .receipt-preview {
+            direction: ltr;
+            text-align: left;
+        }
+
         .receipt-header {
             text-align: center;
             border-bottom: 2px solid #333;
@@ -977,14 +987,26 @@
             border-bottom: 1px solid #eee;
         }
 
+        body[dir="rtl"] .receipt-row {
+            flex-direction: row;
+        }
+
         .receipt-row span:first-child {
             font-weight: 500;
             color: #666;
         }
 
+        body[dir="rtl"] .receipt-row span:first-child {
+            margin-left: auto;
+        }
+
         .receipt-row span:last-child {
             font-weight: 600;
             color: #333;
+        }
+
+        body[dir="rtl"] .receipt-row span:last-child {
+            margin-right: auto;
         }
 
         .receipt-total {
@@ -1005,6 +1027,20 @@
             margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #ddd;
+        }
+
+        body[dir="rtl"] .qr-barcode {
+            flex-direction: row-reverse;
+        }
+
+        /* Ensure values align correctly in RTL */
+        body[dir="rtl"] .receipt-row span:last-child {
+            text-align: left;
+            direction: ltr;
+        }
+
+        body[dir="ltr"] .receipt-row span:last-child {
+            text-align: right;
         }
 
         /* ==================== SEARCH CARDS ==================== */
