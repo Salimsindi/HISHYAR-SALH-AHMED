@@ -3432,6 +3432,11 @@
                 // Update without showing loading/toast for seamless experience
                 updateReceiptDB(receipt).then(() => {
                     refreshAllData();
+                    // If receipt details view is open, update it directly
+                    const receiptDetailsSection = document.getElementById('receipt-details-section');
+                    if (receiptDetailsSection && receiptDetailsSection.classList.contains('active')) {
+                        viewReceiptDetails(currentReceiptId);
+                    }
                 }).catch(error => {
                     console.error('Auto-update error:', error);
                 });
