@@ -3529,6 +3529,11 @@
                 hideLoading();
                 showToast(t('msg.updated'), 'success');
                 refreshAllData();
+                // If receipt details view is open, update it directly
+                const receiptDetailsSection = document.getElementById('receipt-details-section');
+                if (receiptDetailsSection && receiptDetailsSection.classList.contains('active')) {
+                    viewReceiptDetails(currentReceiptId);
+                }
             }).catch(error => {
                 hideLoading();
                 showToast('Error updating receipt: ' + error, 'error');
