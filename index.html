@@ -957,6 +957,14 @@
             margin-bottom: 30px;
         }
 
+        .receipt-logo {
+            margin-bottom: 15px;
+        }
+
+        .receipt-logo img {
+            border: 3px solid #0a192f;
+        }
+
         .receipt-header h2 {
             color: #0a192f;
             font-weight: 700;
@@ -1041,6 +1049,62 @@
 
         body[dir="ltr"] .receipt-row span:last-child {
             text-align: right;
+        }
+
+        /* Signature Section */
+        .receipt-signature {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #333;
+        }
+
+        .signature-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 20px;
+        }
+
+        body[dir="rtl"] .signature-line {
+            flex-direction: row-reverse;
+        }
+
+        .signature-info {
+            text-align: center;
+        }
+
+        .signature-info h4 {
+            color: #0a192f;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .signature-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #333;
+            margin: 5px 0;
+        }
+
+        .signature-position {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .signature-box {
+            width: 200px;
+            height: 60px;
+            border-bottom: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .signature-text {
+            color: #999;
+            font-style: italic;
+            font-size: 0.9rem;
         }
 
         /* ==================== SEARCH CARDS ==================== */
@@ -1690,20 +1754,20 @@
 
                         <div class="mb-3">
                             <label class="form-label" data-i18n="receipt.fullName">Full Name</label>
-                            <input type="text" class="form-control" id="customer-name" required>
+                            <input type="text" class="form-control" id="customer-name" required oninput="autoUpdateReceipt()">
                         </div>
 
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.carName">Car Name</label>
-                                    <input type="text" class="form-control" id="car-name" required>
+                                    <input type="text" class="form-control" id="car-name" required oninput="autoUpdateReceipt()">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.category">Category</label>
-                                    <select class="form-select" id="car-category" data-i18n-options="category" required>
+                                    <select class="form-select" id="car-category" data-i18n-options="category" required onchange="autoUpdateReceipt()">
                                         <option value="">Select Category</option>
                                         <option value="Sedan" data-i18n="category.sedan">Sedan</option>
                                         <option value="SUV" data-i18n="category.suv">SUV</option>
@@ -1721,25 +1785,25 @@
                             <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.color">Color</label>
-                                    <input type="text" class="form-control" id="car-color">
+                                    <input type="text" class="form-control" id="car-color" oninput="autoUpdateReceipt()">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.vin">VIN Number</label>
-                                    <input type="text" class="form-control" id="vin-number">
+                                    <input type="text" class="form-control" id="vin-number" oninput="autoUpdateReceipt()">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.model">Model</label>
-                                    <input type="text" class="form-control" id="car-model">
+                                    <input type="text" class="form-control" id="car-model" oninput="autoUpdateReceipt()">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.plateNumber">Plate Number</label>
-                                    <input type="text" class="form-control" id="plate-number">
+                                    <input type="text" class="form-control" id="plate-number" oninput="autoUpdateReceipt()">
                                 </div>
                             </div>
                         </div>
@@ -1748,7 +1812,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.numberOfCars">Number of Cars</label>
-                                    <input type="number" class="form-control" id="number-of-cars" value="1" min="1">
+                                    <input type="number" class="form-control" id="number-of-cars" value="1" min="1" oninput="autoUpdateReceipt()">
                                 </div>
                             </div>
                         </div>
@@ -1763,25 +1827,25 @@
                             <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.customs">Customs Amount ($)</label>
-                                    <input type="number" class="form-control" id="customs-amount" step="0.01" oninput="calculateTotal()">
+                                    <input type="number" class="form-control" id="customs-amount" step="0.01" oninput="calculateTotal(); autoUpdateReceipt();">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.expenses">Expenses ($)</label>
-                                    <input type="number" class="form-control" id="expenses" step="0.01" oninput="calculateTotal()">
+                                    <input type="number" class="form-control" id="expenses" step="0.01" oninput="calculateTotal(); autoUpdateReceipt();">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.clearanceCost">Total Clearance Cost ($)</label>
-                                    <input type="number" class="form-control" id="clearance-cost" step="0.01" oninput="calculateTotal()">
+                                    <input type="number" class="form-control" id="clearance-cost" step="0.01" oninput="calculateTotal(); autoUpdateReceipt();">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.received">Received Amount ($)</label>
-                                    <input type="number" class="form-control" id="received-amount" step="0.01" oninput="calculateTotal()">
+                                    <input type="number" class="form-control" id="received-amount" step="0.01" oninput="calculateTotal(); autoUpdateReceipt();">
                                 </div>
                             </div>
                         </div>
@@ -1790,7 +1854,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label" data-i18n="receipt.receivedStatus">Received Status</label>
-                                    <select class="form-select" id="received-status">
+                                    <select class="form-select" id="received-status" onchange="autoUpdateReceipt()">
                                         <option value="yes" data-i18n="status.yes">Yes</option>
                                         <option value="no" data-i18n="status.no">No</option>
                                     </select>
@@ -1967,6 +2031,9 @@
 
                 <div class="receipt-preview glass" id="receipt-preview-content">
                     <div class="receipt-header">
+                        <div class="receipt-logo">
+                            <img src="https://via.placeholder.com/100x100/0a192f/64ffda?text=HSA" alt="Company Logo" style="width: 80px; height: 80px; border-radius: 50%;">
+                        </div>
                         <h2>HISHYAR SALIH AHMED CO.</h2>
                         <p data-i18n="receiptDetails.system">Receipt Management System</p>
                         <div class="receipt-number" id="preview-receipt-number" data-i18n="receiptDetails.receiptNumber">Receipt #000001</div>
@@ -2050,6 +2117,19 @@
                     <div class="qr-barcode">
                         <div id="qrcode"></div>
                         <svg id="barcode"></svg>
+                    </div>
+
+                    <div class="receipt-signature">
+                        <div class="signature-line">
+                            <div class="signature-info">
+                                <h4 data-i18n="receiptDetails.manager">Manager</h4>
+                                <p class="signature-name">Juma Hishyar</p>
+                                <p class="signature-position" data-i18n="receiptDetails.position">General Manager</p>
+                            </div>
+                            <div class="signature-box">
+                                <span class="signature-text">Signature</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2388,6 +2468,8 @@
                 'receiptDetails.customer': 'Customer Details',
                 'receiptDetails.vehicle': 'Vehicle Details',
                 'receiptDetails.financial': 'Financial Details',
+                'receiptDetails.manager': 'Manager',
+                'receiptDetails.position': 'General Manager',
                 
                 // Reports
                 'reports.title': 'Reports',
@@ -2537,6 +2619,8 @@
                 'receiptDetails.customer': 'تفاصيل العميل',
                 'receiptDetails.vehicle': 'تفاصيل المركبة',
                 'receiptDetails.financial': 'التفاصيل المالية',
+                'receiptDetails.manager': 'المدير',
+                'receiptDetails.position': 'المدير العام',
                 
                 // Reports
                 'reports.title': 'التقارير',
@@ -3290,6 +3374,53 @@
             const received = parseFloat(document.getElementById('received-amount').value) || 0;
             const total = customs + expenses + clearance + received;
             document.getElementById('total-amount').value = '$' + total.toFixed(2);
+        }
+
+        let autoUpdateTimeout = null;
+        function autoUpdateReceipt() {
+            if (!currentReceiptId) return;
+            
+            // Clear previous timeout to avoid too frequent updates
+            if (autoUpdateTimeout) {
+                clearTimeout(autoUpdateTimeout);
+            }
+            
+            // Wait 1 second before updating (debounce)
+            autoUpdateTimeout = setTimeout(() => {
+                const customs = parseFloat(document.getElementById('customs-amount').value) || 0;
+                const expenses = parseFloat(document.getElementById('expenses').value) || 0;
+                const clearance = parseFloat(document.getElementById('clearance-cost').value) || 0;
+                const received = parseFloat(document.getElementById('received-amount').value) || 0;
+                const total = customs + expenses + clearance + received;
+
+                const receipt = {
+                    id: currentReceiptId,
+                    receiptNumber: document.getElementById('receipt-number').value,
+                    customerName: document.getElementById('customer-name').value,
+                    carName: document.getElementById('car-name').value,
+                    category: document.getElementById('car-category').value,
+                    color: document.getElementById('car-color').value,
+                    vin: document.getElementById('vin-number').value,
+                    model: document.getElementById('car-model').value,
+                    plateNumber: document.getElementById('plate-number').value,
+                    numberOfCars: parseInt(document.getElementById('number-of-cars').value) || 1,
+                    date: document.getElementById('receipt-date').value,
+                    customsAmount: customs,
+                    expenses: expenses,
+                    clearanceCost: clearance,
+                    receivedAmount: received,
+                    receivedStatus: document.getElementById('received-status').value,
+                    totalAmount: total,
+                    updatedAt: new Date().toISOString()
+                };
+
+                // Update without showing loading/toast for seamless experience
+                updateReceiptDB(receipt).then(() => {
+                    refreshAllData();
+                }).catch(error => {
+                    console.error('Auto-update error:', error);
+                });
+            }, 1000);
         }
 
         function saveReceipt() {
