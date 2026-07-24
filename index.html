@@ -938,16 +938,19 @@
             border-radius: 8px;
             max-width: 800px;
             margin: 0 auto;
+            font-family: 'Inter', 'Cairo', sans-serif;
         }
 
         body[dir="rtl"] .receipt-preview {
             direction: rtl;
             text-align: right;
+            font-family: 'Cairo', 'Inter', sans-serif;
         }
 
         body[dir="ltr"] .receipt-preview {
             direction: ltr;
             text-align: left;
+            font-family: 'Inter', 'Cairo', sans-serif;
         }
 
         .receipt-header {
@@ -959,15 +962,27 @@
 
         .receipt-logo {
             margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .receipt-logo img {
             border: 3px solid #0a192f;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .receipt-header h2 {
             color: #0a192f;
             font-weight: 700;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .receipt-header p {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0;
         }
 
         .receipt-number {
@@ -1073,38 +1088,39 @@
             text-align: center;
         }
 
-        .signature-info h4 {
+        .signature-label {
             color: #0a192f;
-            margin-bottom: 5px;
-            font-size: 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+            font-family: 'Inter', 'Cairo', sans-serif;
         }
 
         .signature-name {
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: #333;
-            margin: 5px 0;
-        }
-
-        .signature-position {
-            color: #666;
-            font-size: 0.9rem;
             margin: 0;
+            font-family: 'Georgia', 'Times New Roman', serif;
         }
 
         .signature-box {
-            width: 200px;
+            width: 180px;
             height: 60px;
-            border-bottom: 2px solid #333;
+            border: 2px solid #333;
+            border-top: none;
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
+            padding-bottom: 8px;
         }
 
         .signature-text {
-            color: #999;
+            color: #666;
             font-style: italic;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            font-family: 'Georgia', 'Times New Roman', serif;
         }
 
         /* ==================== SEARCH CARDS ==================== */
@@ -2122,12 +2138,11 @@
                     <div class="receipt-signature">
                         <div class="signature-line">
                             <div class="signature-info">
-                                <h4 data-i18n="receiptDetails.manager">Manager</h4>
+                                <p class="signature-label" data-i18n="receiptDetails.manager">Manager:</p>
                                 <p class="signature-name">Juma Hishyar</p>
-                                <p class="signature-position" data-i18n="receiptDetails.position">General Manager</p>
                             </div>
                             <div class="signature-box">
-                                <span class="signature-text">Signature</span>
+                                <span class="signature-text" data-i18n="receiptDetails.signature">Signature</span>
                             </div>
                         </div>
                     </div>
@@ -2468,8 +2483,8 @@
                 'receiptDetails.customer': 'Customer Details',
                 'receiptDetails.vehicle': 'Vehicle Details',
                 'receiptDetails.financial': 'Financial Details',
-                'receiptDetails.manager': 'Manager',
-                'receiptDetails.position': 'General Manager',
+                'receiptDetails.manager': 'Manager:',
+                'receiptDetails.signature': 'Signature',
                 
                 // Reports
                 'reports.title': 'Reports',
@@ -2619,8 +2634,8 @@
                 'receiptDetails.customer': 'تفاصيل العميل',
                 'receiptDetails.vehicle': 'تفاصيل المركبة',
                 'receiptDetails.financial': 'التفاصيل المالية',
-                'receiptDetails.manager': 'المدير',
-                'receiptDetails.position': 'المدير العام',
+                'receiptDetails.manager': 'المدير:',
+                'receiptDetails.signature': 'التوقيع',
                 
                 // Reports
                 'reports.title': 'التقارير',
