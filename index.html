@@ -3529,6 +3529,8 @@
                 hideLoading();
                 showToast(t('msg.updated'), 'success');
                 refreshAllData();
+                // Reload the receipt in the form to show updated data
+                loadReceiptForEdit(currentReceiptId);
                 // If receipt details view is open, update it directly
                 const receiptDetailsSection = document.getElementById('receipt-details-section');
                 if (receiptDetailsSection && receiptDetailsSection.classList.contains('active')) {
