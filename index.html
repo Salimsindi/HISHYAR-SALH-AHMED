@@ -34,6 +34,9 @@
     <!-- JsBarcode -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     
+    <!-- html2pdf.js for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -2048,7 +2051,7 @@
                 <div class="receipt-preview glass" id="receipt-preview-content">
                     <div class="receipt-header">
                         <div class="receipt-logo">
-                            <img src="https://via.placeholder.com/100x100/0a192f/64ffda?text=HSA" alt="Company Logo" style="width: 80px; height: 80px; border-radius: 50%;">
+                            <img src="logo.png" alt="Company Logo" style="width: 80px; height: 80px; border-radius: 50%;" onerror="this.src='https://via.placeholder.com/100x100/0a192f/64ffda?text=HSA';">
                         </div>
                         <h2>HISHYAR SALIH AHMED CO.</h2>
                         <p data-i18n="receiptDetails.system">Receipt Management System</p>
@@ -4105,7 +4108,31 @@
         }
 
         function downloadPDF() {
-            showToast('PDF download feature requires additional library. Use Print > Save as PDF instead.', 'info');
+            const element = document.getElementById('receipt-preview-content');
+            if (!element) {
+                showToast('No receipt to download', 'error');
+                return;
+            }
+            
+            const receiptNumber = document.getElementById('preview-receipt-number').textContent;
+            const fileName = `Receipt_${receiptNumber.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+            
+            const opt = {
+                margin: 10,
+                filename: fileName,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            showLoading();
+            html2pdf().set(opt).from(element).save().then(() => {
+                hideLoading();
+                showToast('PDF downloaded successfully', 'success');
+            }).catch(error => {
+                hideLoading();
+                showToast('Error downloading PDF: ' + error, 'error');
+            });
         }
 
         // ==================== REPORTS ====================
