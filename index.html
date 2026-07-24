@@ -1573,7 +1573,7 @@
             <div class="container">
                 <a class="navbar-brand" href="#" onclick="navigateTo('dashboard')">
                     <img src="apple-touch-icon.png" alt="HISHYAR CO." style="width: 45px; height: 45px; margin-right: 12px; object-fit: contain;">
-                    HISHYAR CO.
+                    HSA
                 </a>
                 
                 <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Toggle menu">
@@ -3529,13 +3529,8 @@
                 hideLoading();
                 showToast(t('msg.updated'), 'success');
                 refreshAllData();
-                // Update form fields directly with the new values
-                document.getElementById('customs-amount').value = customs;
-                document.getElementById('expenses').value = expenses;
-                document.getElementById('clearance-cost').value = clearance;
-                document.getElementById('received-amount').value = received;
-                document.getElementById('total-amount').value = '$' + total.toFixed(2);
-                document.getElementById('received-status').value = receipt.receivedStatus;
+                // Reload the receipt in the form to show updated data
+                loadReceiptForEdit(currentReceiptId);
                 // If receipt details view is open, update it directly
                 const receiptDetailsSection = document.getElementById('receipt-details-section');
                 if (receiptDetailsSection && receiptDetailsSection.classList.contains('active')) {
